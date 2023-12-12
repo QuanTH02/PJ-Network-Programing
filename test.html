@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Movie Website</title>
+
+    <link href='https://fonts.googleapis.com/css?family=Poppins' rel='stylesheet'>
+
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+    <link rel="stylesheet" href="templates/home.css">
+
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.1/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="js/home.js"></script>
+
+</head>
+
+<body>
+    <div class="sidebar">
+        <div class="row mr-0">
+            <div class="col-2 col-sidebar pl-4" style="height: 100vh; ">
+                <h2 class="mt-5 pb-4" id="name-app" style="text-align: center; font-weight: 800;">Cloudy</h2>
+                <div class="sidebar-teams-noti">
+                    <ul class="pl-0">
+                        <a href="#">
+                            <li style="background-color: var(--color-bg-sidebar-li);">
+                                <i class="fa-solid fa-users" style="font-size: 16px;"></i>
+                                <p>Teams</p>
+                            </li>
+                        </a>
+
+                        <a href="#">
+                            <li>
+                                <i class="fa-regular fa-bell pl-1" style="margin-right: 12px; padding-right: 0px;"></i>
+                                <p>Notifications</p>
+                            </li>
+                        </a>
+                    </ul>
+                </div>
+
+                <div class="sidebar-img-username" style="position: absolute; bottom: 20px; width: 180px;">
+                    <div>
+                        <img src="img/vebinh1.jpg" alt="username" style="display: inline-block;">
+                        <p class="ml-2 mb-0"
+                            style="display: inline-block; max-width: 150px; word-wrap: break-word; vertical-align: middle;">
+                            username</p>
+
+                    </div>
+                    <a href="#"><i class="fa-solid fa-arrow-right-from-bracket"
+                            style="float: right; display: block;"></i></a>
+
+                </div>
+            </div>
+
+
+
+            <div class="col-10">
+                <div class="header ml-5 mb-4">
+                    <div class="search-and-filter" style="display: inline-flex;">
+                        <div class="search-box" style="display: inline;">
+                            <button type="search"> <i class="material-icons"
+                                    style="vertical-align: middle; font-size: 24px;">search</i>
+                            </button>
+                            <input type="text" placeholder="Search team">
+                        </div>
+                        <button type="filter"><i class="material-icons"
+                                style="font-size:24px; vertical-align: middle;">filter_list</i></button>
+                    </div>
+
+                    <div class="btn-join-team" style="float: right;">
+                        <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenuButton"
+                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <i class="fa-solid fa-user-plus mr-3" style="display: inline;"></i>
+                            <p style="display: inline; font-size: 14px;">Join or create team</p>
+                        </button>
+                        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                            <a class="dropdown-item" href="#">Join team with a code</a>
+                            <a class="dropdown-item" href="#">Create team</a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Container list team -->
+                <div class="list-team">
+                    <div>
+                        <div class="row div-list-team" style="display: flex; justify-content: space-between;">
+                            <a href="#" class="col-2 team">
+                                <div class="team-element">
+                                    <div class="img-div"></div>
+                                </div>
+                                <br>
+                                <h6>Network Programing</h6>
+                            </a>
+                            <a href="#" class="col-2 team">
+                                <div class="team-element">
+                                    <div class="img-div"></div>
+                                </div>
+                                <br>
+                                <h6>Viet Nhat</h6>
+                            </a>
+                            <a href="#" class="col-2 team">
+                                <div class="team-element">
+                                    <div class="img-div"></div>
+                                </div>
+                                <br>
+                                <h6>Tran Hong Quan</h6>
+                            </a>
+                            <a href="#" class="col-2 team">
+                                <div class="team-element">
+                                    <div class="img-div"></div>
+                                </div>
+                                <br>
+                                <h6>Hoang Minh Nguyet</h6>
+                            </a>
+                            <a href="#" class="col-2 team">
+                                <div class="team-element">
+                                    <div class="img-div"></div>
+                                </div>
+                                <br>
+                                <h6>Nguyen Hai Nam</h6>
+                            </a>
+                        </div>
+
+                        <div class="row div-list-team" style="display: flex; justify-content: space-between;">
+                            <a href="#" class="col-2 team">
+                                <div class="team-element">
+                                    <div class="img-div"></div>
+                                </div>
+                                <br>
+                                <h6>Network Programing</h6>
+                            </a>
+                            <a href="#" class="col-2 team">
+                                <div class="team-element">
+                                    <div class="img-div"></div>
+                                </div>
+                                <br>
+                                <h6>Network Programing</h6>
+                            </a>
+                            <a href="#" class="col-2 team">
+                                <div class="team-element">
+                                    <div class="img-div"></div>
+                                </div>
+                                <br>
+                                <h6>Network Programing</h6>
+                            </a>
+                            <a href="#" class="col-2 team">
+                                <div class="team-element">
+                                    <div class="img-div"></div>
+                                </div>
+                                <br>
+                                <h6>Network Programing</h6>
+                            </a>
+                            <a href="#" class="col-2 team">
+                                <div class="team-element">
+                                    <div class="img-div"></div>
+                                </div>
+                                <br>
+                                <h6>Network Programing</h6>
+                            </a>
+                        </div>
+
+                        <div class="row div-list-team" style="display: flex; justify-content: space-between;">
+                            <a href="#" class="col-2 team">
+                                <div class="team-element">
+                                    <div class="img-div"></div>
+                                </div>
+                                <br>
+                                <h6>Network Programing</h6>
+                            </a>
+                            <a href="#" class="col-2 team">
+                                <div class="team-element">
+                                    <div class="img-div"></div>
+                                </div>
+                                <br>
+                                <h6>Network Programing</h6>
+                            </a>
+                            <a href="#" class="col-2 team">
+                                <div class="team-element">
+                                    <div class="img-div"></div>
+                                </div>
+                                <br>
+                                <h6>Network Programing</h6>
+                            </a>
+                            <a href="#" class="col-2 team">
+                                <div class="team-element">
+                                    <div class="img-div"></div>
+                                </div>
+                                <br>
+                                <h6>Network Programing</h6>
+                            </a>
+                            <a href="#" class="col-2 team">
+                                <div class="team-element">
+                                    <div class="img-div"></div>
+                                </div>
+                                <br>
+                                <h6>Network Programing</h6>
+                            </a>
+                        </div>
+                    </div>
+
+
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+</body>
+
+</html>
