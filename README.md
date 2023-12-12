@@ -25,6 +25,10 @@ Program the following functions:**
 - Invite to join the group and approve: 2 points
 - Leaving group: 1 point
 - Remove member from group: 1 point
+
+**Screen demo:**
+![image](https://github.com/QuanTH02/PJ-Network-Programing/assets/104297617/a528fe43-0ceb-4c8c-bb93-687aaf93faab)
+
 - List directory contents: 2 points
 - Upload/Download file: 2 points
 - Handling files of any large size: 2 points
