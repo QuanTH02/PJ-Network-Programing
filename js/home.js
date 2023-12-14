@@ -1,148 +1,91 @@
 $(document).ready(function () {
-    var navbar = $(".navbar");
-    var searchBox = $(".search-box");
-    var scrolled = false;
+    // Popup Join Team
 
-    $(window).scroll(function () {
-        if ($(this).scrollTop() > 50) {
-            if (!scrolled) {
-                navbar.addClass('transparent-animate');
-                searchBox.hide();
-                scrolled = true;
-            }
-        } else {
-            if (scrolled) {
-                navbar.removeClass('transparent-animate');
-                searchBox.show();
-                scrolled = false;
-            }
+    document.getElementById("openPopupJoinTeamBtn").addEventListener("click", function () {
+        document.getElementById("joinTeamPopup").style.display = "block";
+    });
+
+    document.getElementById("joinTeamPopup").addEventListener("click", function (event) {
+        if (event.target === this) {
+            this.style.display = "none";
         }
     });
 
-    let currentIndex = 0;
+    // Popup Create Team
+    document.getElementById("openPopupcreateTeamBtn").addEventListener("click", function () {
+        document.getElementById("createTeamPopup").style.display = "block";
+    });
 
-    function changeSlide(direction) {
-        const carouselInner = document.getElementById('carouselInner');
-        const cardWidth = document.querySelector('.col-md-3.mb-4').offsetWidth;
-        const maxIndex = carouselInner.children.length - 1;
-
-        currentIndex += direction;
-
-        if (currentIndex < 0) {
-            currentIndex = maxIndex;
-        } else if (currentIndex > maxIndex) {
-            currentIndex = 0;
+    document.getElementById("createTeamPopup").addEventListener("click", function (event) {
+        if (event.target === this) {
+            this.style.display = "none";
         }
+    });
 
-        const newTransformValue = -currentIndex * cardWidth;
-        carouselInner.style.transform = `translateX(${newTransformValue}px)`;
+
+    document.querySelector('.search-box input').addEventListener('keyup', filterTeams);
+
+    function filterTeams() {
+        var input = document.querySelector('.search-box input');
+        var filter = input.value.toUpperCase();
+        var teams = document.querySelectorAll('.team');
+
+        for (var i = 0; i < teams.length; i++) {
+            var h6 = teams[i].querySelector('h6');
+            if (h6) {
+                var text = h6.textContent || h6.innerText;
+                if (text.toUpperCase().indexOf(filter) > -1) {
+                    teams[i].style.display = '';
+                } else {
+                    teams[i].style.display = 'none';
+                }
+            }
+        }
     }
 
-    // Thêm sự kiện click cho nút Next
-    $(".next-btn").click(function () {
-        changeSlide(1);
-    });
+    // Popup Join team
+    document.querySelector('.code-team-inp').addEventListener('input', function () {
+        var inputValue = this.value.trim(); // Trim để loại bỏ các khoảng trắng
 
-    // Thêm sự kiện click cho nút Prev
-    $(".prev-btn").click(function () {
-        changeSlide(-1);
-    });
-
-    let mode = 0;
-    var mode_page = $("body");
-    // Thêm sự kiện click cho nút Prev
-    $(".mode-page").click(function () {
-        if (mode == 0) {
-            mode++;
-            mode_page.removeClass("light-mode");
-            mode_page.addClass("dark-mode");
+        var joinTeamBtn = document.querySelector('.join-team-btn');
+        if (inputValue === "") {
+            joinTeamBtn.style.backgroundColor = "#4D4D4D";
         } else {
-            mode--;
-            mode_page.removeClass("dark-mode");
-            mode_page.addClass("light-mode");
+            joinTeamBtn.style.backgroundColor = "var(--color-bg-sidebar-li)"; 
         }
     });
 
-    // Lặp qua tất cả các review và áp dụng các sự kiện click cho chúng
-    $('.review').each(function () {
-        var $review = $(this);
-        var $thumbsUpIcon = $review.find('.fa-thumbs-up');
-        var $thumbsDownIcon = $review.find('.fa-thumbs-down');
-        var $likeCount = $review.find('.fa-thumbs-up .like-count');
-        var $dislikeCount = $review.find('.fa-thumbs-down .dislike-count');
-
-        $thumbsUpIcon.on('click', function () {
-            if ($thumbsUpIcon.hasClass('fa-regular')) {
-                $thumbsUpIcon.removeClass('fa-regular').addClass('fa-solid');
-                $likeCount.text(parseInt($likeCount.text()) + 1);
-
-                if ($thumbsDownIcon.hasClass('fa-solid')) {
-                    $thumbsDownIcon.removeClass('fa-solid').addClass('fa-regular');
-                    $dislikeCount.text(parseInt($dislikeCount.text()) - 1);
-                }
-            } else {
-                $thumbsUpIcon.removeClass('fa-solid').addClass('fa-regular');
-                $likeCount.text(parseInt($likeCount.text()) - 1);
-            }
-        });
-
-        $thumbsDownIcon.on('click', function () {
-            if ($thumbsDownIcon.hasClass('fa-regular')) {
-                $thumbsDownIcon.removeClass('fa-regular').addClass('fa-solid');
-                $dislikeCount.text(parseInt($dislikeCount.text()) + 1);
-
-                if ($thumbsUpIcon.hasClass('fa-solid')) {
-                    $thumbsUpIcon.removeClass('fa-solid').addClass('fa-regular');
-                    $likeCount.text(parseInt($likeCount.text()) - 1);
-                }
-            } else {
-                $thumbsDownIcon.removeClass('fa-solid').addClass('fa-regular');
-                $dislikeCount.text(parseInt($dislikeCount.text()) - 1);
-            }
-        });
-    });
-
-
-    // Mở popup khi nhấp vào nút "Write a Review"
-    $(".open-popup").on("click", function () {
-        document.getElementById("review-popup").style.display = "block";
-    });
-
-    // Đóng popup khi nhấp vào nút đóng hoặc nền đen xung quanh
-    $(".close-popup").on("click", function () {
-        document.getElementById("review-popup").style.display = "none";
-    });
-
-    // Đóng popup khi nhấn ESC
-    document.addEventListener("keydown", function (event) {
-        if (event.key === "Escape") {
-            document.getElementById("review-popup").style.display = "none";
+    document.querySelector('.join-team-btn').addEventListener('click', function () {
+        var codeTeam = document.querySelector('.code-team-inp');
+        var inputValue = codeTeam.value;
+        if (inputValue == "123456") {
+            console.log("Successfully entered");
+            document.querySelector('#p-message-code-team').style.display = "none";
+        } else {
+            document.querySelector('#p-message-code-team').style.display = "block";
         }
     });
 
-    // Lấy phần tử biểu mẫu và ô input bằng ID
-    var searchForm = document.getElementById("searchForm");
-    var searchInput = document.getElementById("searchInput");
+    // Popup Create team
+    document.querySelector('.create-team-inp').addEventListener('input', function () {
+        var inputValue = this.value.trim(); // Trim để loại bỏ các khoảng trắng
 
-    console.log(searchForm);
-    console.log(searchInput);
-    // Đặt sự kiện submit cho biểu mẫu
-    searchForm.addEventListener("submit", function (event) {
-        // Ngăn sự kiện submit mặc định của biểu mẫu
-        event.preventDefault();
-
-        // Lấy giá trị từ ô input
-        var searchText = searchInput.value.trim().toLowerCase();
-
-        // Kiểm tra nếu người dùng đã nhập "Ve"
-        if (searchText === "ve") {
-            // Chuyển hướng đến trang "film.php"
-            window.location.href = "detail.php";
+        var nextBtn = document.querySelector('.create-team-btn');
+        if (inputValue === "") {
+            nextBtn.style.backgroundColor = "#4D4D4D"; 
+        } else {
+            nextBtn.style.backgroundColor = "var(--color-bg-sidebar-li)";
         }
     });
 
-    $(".log-out").on("click", function () {
-        window.location.href = "home.php";
+    document.querySelector('.create-team-btn').addEventListener('click', function () {
+        var teamName = document.querySelector('.create-team-inp');
+        var inputValue = teamName.value;
+        if (inputValue == "123456") {
+            console.log("Successfully entered");
+            document.querySelector('#p-message-create-team').style.display = "none";
+        } else {
+            document.querySelector('#p-message-create-team').style.display = "block";
+        }
     });
-
 });

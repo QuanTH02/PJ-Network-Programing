@@ -6,9 +6,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Your Movie Website</title>
 
+  <link href='https://fonts.googleapis.com/css?family=Poppins' rel='stylesheet'>
+
+
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
   <link rel="stylesheet" href="templates/home.css">
 
 
@@ -17,387 +22,182 @@
   <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.1/dist/umd/popper.min.js"></script>
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
   <script src="js/home.js"></script>
-  <style>
-    /* Add your custom styles here */
+  <script src="js/team.js"></script>
 
-    /* Fix for the container */
-    body {
-      padding-top: 56px;
-      /* Adjust based on your navbar height */
-    }
-  </style>
+
+  <link href="https://getbootstrap.com/docs/5.3/assets/css/docs.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </head>
 
 <body>
-  <!-- Navbar -->
-  <?php
-  include 'nav.php';
-  ?>
+  <div class="sidebar">
+    <div class="row mr-0">
+      <div class="col-2 col-sidebar pl-4" style="height: 100vh; ">
+        <?php include "sidebar.php" ?>
+      </div>
 
-  <!-- Container -->
-  <div class="div-container mt-4">
-    <!-- First div -->
-    <!-- Banner Image -->
-    <div class="row">
-      <div class="col-md-8 banner-trailer-film">
-        <div id="carouselBannerImg" class="carousel slide">
-          <!-- <ol class="carousel-indicators mb-1">
-            <li data-target="#carouselExampleIndicators" data-slide-to="0" class="active"></li>
-            <li data-target="#carouselExampleIndicators" data-slide-to="1"></li>
-            <li data-target="#carouselExampleIndicators" data-slide-to="2"></li>
-          </ol> -->
-          <div class="carousel-inner video-trailer" data-ride="false">
-            <div class="carousel-item active">
-              <video controls width="100%">
-                <source
-                  src="https://imdb-video.media-imdb.com/vi2046936089/1434659607842-pgv4ql-1680706385480.mp4?Expires=1702237252&Signature=nB3k4f2J6Qhha0-0ITJ31nPHzmWtEMGTnkaQhtTvo7Orx3d38wC0fvM~eYe9b1~0qJc2xggxGut1IgPANOZS8OKiWi5QBoQQ6ZpHzwtjcUqXTamHixM7wFomhcX-tm9cLt3ei~WoiOTaqw9QAwwFFxflW3DY5CWI2mbFgDoDpnMfF89Ebj7UN8jK3SBqNC62woXDvzdZR5QiihP7KZm~NcJs7Rjgc7aFodsWUGwZZDjaqRICbhhB~z9BFMHkPacBR8Y3triiYNC9wgvNGzfjx-qIR81QSftfcCfgbH5VpzjMcJ3RqIfy5rYHaK9nrTQQFQE8c2BCe7-6tEAfggpwPg__&Key-Pair-Id=APKAIFLZBVQZ24NQH3KA"
-                  type="video/mp4">
-                Your browser does not support the video tag.
-              </video>
+
+
+      <div class="col-10">
+        <div class="header ml-5 mb-4">
+          <div class="search-and-filter" style="display: inline-flex;">
+            <div class="search-box" style="display: inline;">
+              <button type="search"> <i class="material-icons"
+                  style="vertical-align: middle; font-size: 24px;">search</i>
+              </button>
+              <input type="text" placeholder="Search team">
+            </div>
+            <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown"
+              aria-expanded="false" id="filter-btn"><i class="material-icons"
+                style="font-size:24px; vertical-align: middle;">filter_list</i></button>
+            <ul class="dropdown-menu mt-2" style="width: 100px;">
+              <li><a class="dropdown-item" id="filter-all" href="#">All<i class="fa-solid fa-check" style="float: right; margin-top: 3px;"></i></a></li>
+              <li><a class="dropdown-item" id="filter-alpha" href="#">A-Z<i class="fa-solid fa-check" style="float: right; margin-top: 3px;"></i></a></li>
+              <li><a class="dropdown-item" id="filter-reverse-alpha" href="#">Z-A<i class="fa-solid fa-check" style="float: right; margin-top: 3px;"></i></a></li>
+            </ul>
+          </div>
+
+          <div class="dropdown-center btn-join-team" style="float: right;">
+            <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown"
+              aria-expanded="false">
+              <i class="fa-solid fa-user-plus mr-3" style="display: inline;"></i>
+              <p style="display: inline; font-size: 14px;">Join or create team</p>
+            </button>
+            <ul class="dropdown-menu mt-2" style="width: 237px;">
+              <li><a class="dropdown-item" id="openPopupJoinTeamBtn" href="#">Join team with a code</a></li>
+              <li><a class="dropdown-item" id="openPopupcreateTeamBtn" href="#">Create team</a></li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Container list team -->
+        <div class="list-team">
+          <div>
+            <div class="row div-list-team">
+              <a href="team.php" class="col-2 team" style="margin-bottom: 34px; margin-right: 16px; margin-left: 18px;">
+                <div class="team-element">
+                  <div class="img-div"></div>
+                </div>
+                <br>
+                <h6>Network Programing</h6>
+              </a>
+              <a href="team.php" class="col-2 team" style="margin-bottom: 34px; margin-right: 16px; margin-left: 18px;">
+                <div class="team-element">
+                  <div class="img-div"></div>
+                </div>
+                <br>
+                <h6>Viet Nhat</h6>
+              </a>
+              <a href="team.php" class="col-2 team" style="margin-bottom: 34px; margin-right: 16px; margin-left: 18px;">
+                <div class="team-element">
+                  <div class="img-div"></div>
+                </div>
+                <br>
+                <h6>Tran Hong Quan</h6>
+              </a>
+              <a href="team.php" class="col-2 team" style="margin-bottom: 34px; margin-right: 16px; margin-left: 18px;">
+                <div class="team-element">
+                  <div class="img-div"></div>
+                </div>
+                <br>
+                <h6>Hoang Minh Nguyet</h6>
+              </a>
+              <a href="team.php" class="col-2 team" style="margin-bottom: 34px; margin-right: 16px; margin-left: 18px;">
+                <div class="team-element">
+                  <div class="img-div"></div>
+                </div>
+                <br>
+                <h6>Nguyen Hai Nam</h6>
+              </a>
+              <a href="team.php" class="col-2 team" style="margin-bottom: 34px; margin-right: 16px; margin-left: 18px;">
+                <div class="team-element">
+                  <div class="img-div"></div>
+                </div>
+                <br>
+                <h6>Team A</h6>
+              </a>
+              <a href="team.php" class="col-2 team" style="margin-bottom: 34px; margin-right: 16px; margin-left: 18px;">
+                <div class="team-element">
+                  <div class="img-div"></div>
+                </div>
+                <br>
+                <h6>Team B</h6>
+              </a>
+              <a href="team.php" class="col-2 team" style="margin-bottom: 34px; margin-right: 16px; margin-left: 18px;">
+                <div class="team-element">
+                  <div class="img-div"></div>
+                </div>
+                <br>
+                <h6>Team C</h6>
+              </a>
+              <a href="team.php" class="col-2 team" style="margin-bottom: 34px; margin-right: 16px; margin-left: 18px;">
+                <div class="team-element">
+                  <div class="img-div"></div>
+                </div>
+                <br>
+                <h6>Team D</h6>
+              </a>
+              <a href="team.php" class="col-2 team" style="margin-bottom: 34px; margin-right: 16px; margin-left: 18px;">
+                <div class="team-element">
+                  <div class="img-div"></div>
+                </div>
+                <br>
+                <h6>Network Programing</h6>
+              </a>
+              <a href="team.php" class="col-2 team" style="margin-bottom: 34px; margin-right: 16px; margin-left: 18px;">
+                <div class="team-element">
+                  <div class="img-div"></div>
+                </div>
+                <br>
+                <h6>Network Programing</h6>
+              </a>
+              <a href="team.php" class="col-2 team" style="margin-bottom: 34px; margin-right: 16px; margin-left: 18px;">
+                <div class="team-element">
+                  <div class="img-div"></div>
+                </div>
+                <br>
+                <h6>Network Programing</h6>
+              </a>
+
             </div>
 
-            <div class="carousel-item video-trailer">
-              <video controls width="100%">
-                <source
-                  src="https://imdb-video.media-imdb.com/vi2046936089/1434659607842-pgv4ql-1680706385480.mp4?Expires=1702237252&Signature=nB3k4f2J6Qhha0-0ITJ31nPHzmWtEMGTnkaQhtTvo7Orx3d38wC0fvM~eYe9b1~0qJc2xggxGut1IgPANOZS8OKiWi5QBoQQ6ZpHzwtjcUqXTamHixM7wFomhcX-tm9cLt3ei~WoiOTaqw9QAwwFFxflW3DY5CWI2mbFgDoDpnMfF89Ebj7UN8jK3SBqNC62woXDvzdZR5QiihP7KZm~NcJs7Rjgc7aFodsWUGwZZDjaqRICbhhB~z9BFMHkPacBR8Y3triiYNC9wgvNGzfjx-qIR81QSftfcCfgbH5VpzjMcJ3RqIfy5rYHaK9nrTQQFQE8c2BCe7-6tEAfggpwPg__&Key-Pair-Id=APKAIFLZBVQZ24NQH3KA"
-                  type="video/mp4">
-                Your browser does not support the video tag.
-              </video>
-            </div>
 
-          </div>
 
-          <a class="carousel-control-prev" href="#carouselBannerImg" role="button" data-slide="prev"
-            style="width: 30px">
-            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-            <span class="sr-only">Previous</span>
-          </a>
-          <a class="carousel-control-next" href="#carouselBannerImg" role="button" data-slide="next"
-            style="width: 30px">
-            <span class="carousel-control-next-icon" aria-hidden="true"></span>
-            <span class="sr-only">Next</span>
-          </a>
-        </div>
-      </div>
-      <div class="col-md-4 pr-0 list-trailer-play">
-        <ul class="list-group">
-          <h3 style="margin-top: -10px;">Next Trailer</h3>
-
-          <!-- Right Video -->
-          <?php for ($i = 1; $i <= 3; $i++): ?>
-            <li class="list-group-item pt-0 pb-0 mb-1 trailer-play">
-              <div class="row">
-                <div class="col-md-2 img-small">
-                  <img src="img/vebinh<?= $i ?>.jpg" class="card-img-top" alt="Movie Image">
-                </div>
-
-                <div class="col-md-10 card-body d-flex flex-column mt-0 pt-0">
-                  <p class="play-time"><i class="fa fa-play-circle-o mr-2" style="font-size:30px"></i> 0:49</p>
-                  <h5 class="card-title mt-0 mb-1" style="color: rgba(255, 255, 255, 0.9);">Ve Binh Giai Ngan Ha di giai
-                    cuu the gioi dong vat</h5>
-                  <p class="des">Description</p>
-                </div>
-              </div>
-            </li>
-          <?php endfor; ?>
-
-          <a href="#">
-            <h2>Browse Trailer ></h2>
-          </a>
-        </ul>
-      </div>
-    </div>
-
-    <h1 class="mt-0">What to watch</h1>
-
-    <!-- Most popular -->
-    <div>
-      <a href="#" style="color: black;">
-        <h3 class="topic mb-0 mt-4">| Most popular <i class="fas fa-chevron-right"></i></h3>
-      </a>
-    </div>
-
-    <!-- Second div -->
-    <div id="carouselMostpopular" class="carousel slide" data-ride="carousel">
-      <div class="carousel-inner">
-        <div class="carousel-item active">
-          <div class="row mt-4">
-            <?php for ($i = 1; $i <= 6; $i++): ?>
-              <!-- Repeat the following block for each movie -->
-              <div class="col-md-2 mb-4 mr-0">
-                <div class="card">
-                  <div class="img-container">
-                    <img src="img/vebinh<?= $i ?>.jpg" class="card-img-top" alt="Movie Image">
-                  </div>
-
-                  <div class="card-body d-flex flex-column align-items-center">
-                    <p class="card-text mr-auto mb-2"><i class="fas fa-star" style="color: yellow;"></i>
-                      4.9</p>
-                    <h6 class="card-title mt-0">Ve Binh Giai Ngan Ha</h6>
-                    <br>
-                    <button class="btn btn-primary"><i class='fas fa-plus'></i> Add to List</button>
-                    <a href="detail.php" class="mt-2" style="width: 150px; text-align:center;"><button
-                        class="btn btn-success p-2"><i class="fa fa-play mr-1"></i> Watch Movie</button></a>
-
-                  </div>
-                </div>
-              </div>
-            <?php endfor; ?>
-          </div>
-        </div>
-        <div class="carousel-item">
-          <div class="row mt-4">
-            <?php for ($i = 6; $i >= 1; $i--): ?>
-              <!-- Repeat the following block for each movie -->
-              <div class="col-md-2 mb-4 mr-0">
-                <div class="card">
-                  <div class="img-container">
-                    <img src="img/vebinh<?= $i ?>.jpg" class="card-img-top" alt="Movie Image">
-                  </div>
-
-                  <div class="card-body d-flex flex-column align-items-center">
-                    <p class="card-text mr-auto mb-2"><i class="fas fa-star" style="color: yellow;"></i>
-                      4.9</p>
-                    <h6 class="card-title mt-0">Ve Binh Giai Ngan Ha</h6>
-                    <br>
-                    <button class="btn btn-primary"><i class='fas fa-plus'></i> Add to List</button>
-                    <a href="detail.php" class="mt-2" style="width: 150px; text-align:center;"><button
-                        class="btn btn-success p-2"><i class="fa fa-play mr-1"></i> Watch Movie</button></a>
-                  </div>
-                </div>
-              </div>
-            <?php endfor; ?>
           </div>
         </div>
       </div>
-      <a class="carousel-control-prev" href="#carouselMostpopular" role="button" data-slide="prev" style="width: 30px">
-        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-        <span class="sr-only">Previous</span>
-      </a>
-      <a class="carousel-control-next" href="#carouselMostpopular" role="button" data-slide="next" style="width: 30px">
-        <span class="carousel-control-next-icon" aria-hidden="true"></span>
-        <span class="sr-only">Next</span>
-      </a>
     </div>
 
-
-    <!-- Most favourites -->
-    <div>
-      <a href="#" style="color: black;">
-        <h3 class="topic mb-0 mt-4">| Most favourites <i class="fas fa-chevron-right"></i></h3>
-      </a>
-    </div>
-
-    <!-- Second div -->
-    <div id="carouselMostfavourites" class="carousel slide" data-ride="carousel">
-      <div class="carousel-inner">
-        <div class="carousel-item active">
-          <div class="row mt-4">
-            <?php for ($i = 1; $i <= 6; $i++): ?>
-              <!-- Repeat the following block for each movie -->
-              <div class="col-md-2 mb-4 mr-0">
-                <div class="card">
-                  <div class="img-container">
-                    <img src="img/vebinh<?= $i ?>.jpg" class="card-img-top" alt="Movie Image">
-                  </div>
-
-                  <div class="card-body d-flex flex-column align-items-center">
-                    <p class="card-text mr-auto mb-2"><i class="fas fa-star" style="color: yellow;"></i>
-                      4.9</p>
-                    <h6 class="card-title mt-0">Ve Binh Giai Ngan Ha</h6>
-                    <br>
-                    <button class="btn btn-primary"><i class='fas fa-plus'></i> Add to List</button>
-                    <a href="detail.php" class="mt-2" style="width: 150px; text-align:center;"><button
-                        class="btn btn-success p-2"><i class="fa fa-play mr-1"></i> Watch Movie</button></a>
-                  </div>
-                </div>
-              </div>
-            <?php endfor; ?>
-          </div>
+    <!-- Popup Join team -->
+    <div class="popup" id="joinTeamPopup">
+      <div class="popup-content">
+        <i class="fa-solid fa-users" style="font-size: 16px;"></i>
+        <h5>Join team with a code</h5>
+        <div style="display: inline-flex; margin-top: 20px;">
+          <input type="text" placeholder="Code" class="code-team-inp">
+          <button class="btn btn-success join-team-btn" style="background-color: #4D4D4D;">Join team</button>
         </div>
-        <div class="carousel-item">
-          <div class="row mt-4">
-            <?php for ($i = 6; $i >= 1; $i--): ?>
-              <!-- Repeat the following block for each movie -->
-              <div class="col-md-2 mb-4 mr-0">
-                <div class="card">
-                  <div class="img-container">
-                    <img src="img/vebinh<?= $i ?>.jpg" class="card-img-top" alt="Movie Image">
-                  </div>
 
-                  <div class="card-body d-flex flex-column align-items-center">
-                    <p class="card-text mr-auto mb-2"><i class="fas fa-star" style="color: yellow;"></i>
-                      4.9</p>
-                    <h6 class="card-title mt-0">Ve Binh Giai Ngan Ha</h6>
-                    <br>
-                    <button class="btn btn-primary"><i class='fas fa-plus'></i> Add to List</button>
-                    <a href="detail.php" class="mt-2" style="width: 150px; text-align:center;"><button
-                        class="btn btn-success p-2"><i class="fa fa-play mr-1"></i> Watch Movie</button></a>
-                  </div>
-                </div>
-              </div>
-            <?php endfor; ?>
-          </div>
-        </div>
+        <p class="p-message" id="p-message-code-team">Code team does not exist</p>
       </div>
-      <a class="carousel-control-prev" href="#carouselMostfavourites" role="button" data-slide="prev"
-        style="width: 30px">
-        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-        <span class="sr-only">Previous</span>
-      </a>
-      <a class="carousel-control-next" href="#carouselMostfavourites" role="button" data-slide="next"
-        style="width: 30px">
-        <span class="carousel-control-next-icon" aria-hidden="true"></span>
-        <span class="sr-only">Next</span>
-      </a>
     </div>
 
-    <!-- Highest revenue -->
-    <div>
-      <a href="#" style="color: black;">
-        <h3 class="topic mb-0 mt-4">| Highest revenue <i class="fas fa-chevron-right"></i></h3>
-      </a>
-    </div>
-
-    <!-- Second div -->
-    <div id="carouselHighestRevenue" class="carousel slide" data-ride="carousel">
-      <div class="carousel-inner">
-        <div class="carousel-item active">
-          <div class="row mt-4">
-            <?php for ($i = 1; $i <= 6; $i++): ?>
-              <!-- Repeat the following block for each movie -->
-              <div class="col-md-2 mb-4 mr-0">
-                <div class="card">
-                  <div class="img-container">
-                    <img src="img/vebinh<?= $i ?>.jpg" class="card-img-top" alt="Movie Image">
-                  </div>
-
-                  <div class="card-body d-flex flex-column align-items-center">
-                    <p class="card-text mr-auto mb-2"><i class="fas fa-star" style="color: yellow;"></i>
-                      4.9</p>
-                    <h6 class="card-title mt-0">Ve Binh Giai Ngan Ha</h6>
-                    <br>
-                    <button class="btn btn-primary"><i class='fas fa-plus'></i> Add to List</button>
-                    <a href="detail.php" class="mt-2" style="width: 150px; text-align:center;"><button
-                        class="btn btn-success p-2"><i class="fa fa-play mr-1"></i> Watch Movie</button></a>
-                  </div>
-                </div>
-              </div>
-            <?php endfor; ?>
-          </div>
+    <!-- Popup Create team -->
+    <div class="popup" id="createTeamPopup">
+      <div class="popup-content">
+        <i class="fa-solid fa-users" style="font-size: 16px;"></i>
+        <h5>Create your team</h5>
+        <div class="div-create-team" style="display:flex; margin-top: 20px; flex-direction: column;">
+          <input type="text" placeholder="Team name" class="create-team-inp">
+          <input type="text" id="create-team-des" placeholder="Description" style="margin-bottom: 3px;">
+          <p class="p-message" id="p-message-create-team">The team name already exists</p>
+          <button class="btn btn-success next-btn create-team-btn"
+            style="margin-left: auto; background-color: #4D4D4D; margin-top: 18px ">Next</button>
         </div>
-        <div class="carousel-item">
-          <div class="row mt-4">
-            <?php for ($i = 6; $i >= 1; $i--): ?>
-              <!-- Repeat the following block for each movie -->
-              <div class="col-md-2 mb-4 mr-0">
-                <div class="card">
-                  <div class="img-container">
-                    <img src="img/vebinh<?= $i ?>.jpg" class="card-img-top" alt="Movie Image">
-                  </div>
 
-                  <div class="card-body d-flex flex-column align-items-center">
-                    <p class="card-text mr-auto mb-2"><i class="fas fa-star" style="color: yellow;"></i>
-                      4.9</p>
-                    <h6 class="card-title mt-0">Ve Binh Giai Ngan Ha</h6>
-                    <br>
-                    <button class="btn btn-primary"><i class='fas fa-plus'></i> Add to List</button>
-                    <a href="detail.php" class="mt-2" style="width: 150px; text-align:center;"><button
-                        class="btn btn-success p-2"><i class="fa fa-play mr-1"></i> Watch Movie</button></a>
-                  </div>
-                </div>
-              </div>
-            <?php endfor; ?>
-          </div>
-        </div>
+
       </div>
-      <a class="carousel-control-prev" href="#carouselHighestRevenue" role="button" data-slide="prev"
-        style="width: 30px">
-        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-        <span class="sr-only">Previous</span>
-      </a>
-      <a class="carousel-control-next" href="#carouselHighestRevenue" role="button" data-slide="next"
-        style="width: 30px">
-        <span class="carousel-control-next-icon" aria-hidden="true"></span>
-        <span class="sr-only">Next</span>
-      </a>
     </div>
-
-    <!-- Latest -->
-    <div>
-      <a href="#" style="color: black;">
-        <h3 class="topic mb-0 mt-4">| Latest <i class="fas fa-chevron-right"></i></h3>
-      </a>
-    </div>
-
-    <!-- Second div -->
-    <div id="carouselLatest" class="carousel slide" data-ride="carousel">
-      <div class="carousel-inner">
-        <div class="carousel-item active">
-          <div class="row mt-4">
-            <?php for ($i = 1; $i <= 6; $i++): ?>
-              <!-- Repeat the following block for each movie -->
-              <div class="col-md-2 mb-4 mr-0">
-                <div class="card">
-                  <div class="img-container">
-                    <img src="img/vebinh<?= $i ?>.jpg" class="card-img-top" alt="Movie Image">
-                  </div>
-
-                  <div class="card-body d-flex flex-column align-items-center">
-                    <p class="card-text mr-auto mb-2"><i class="fas fa-star" style="color: yellow;"></i>
-                      4.9</p>
-                    <h6 class="card-title mt-0">Ve Binh Giai Ngan Ha</h6>
-                    <br>
-                    <button class="btn btn-primary"><i class='fas fa-plus'></i> Add to List</button>
-                    <a href="detail.php" class="mt-2" style="width: 150px; text-align:center;"><button
-                        class="btn btn-success p-2"><i class="fa fa-play mr-1"></i> Watch Movie</button></a>
-                  </div>
-                </div>
-              </div>
-            <?php endfor; ?>
-          </div>
-        </div>
-        <div class="carousel-item">
-          <div class="row mt-4">
-            <?php for ($i = 6; $i >= 1; $i--): ?>
-              <!-- Repeat the following block for each movie -->
-              <div class="col-md-2 mb-4 mr-0">
-                <div class="card">
-                  <div class="img-container">
-                    <img src="img/vebinh<?= $i ?>.jpg" class="card-img-top" alt="Movie Image">
-                  </div>
-
-                  <div class="card-body d-flex flex-column align-items-center">
-                    <p class="card-text mr-auto mb-2"><i class="fas fa-star" style="color: yellow;"></i>
-                      4.9</p>
-                    <h6 class="card-title mt-0">Ve Binh Giai Ngan Ha</h6>
-                    <br>
-                    <button class="btn btn-primary"><i class='fas fa-plus'></i> Add to List</button>
-                    <a href="detail.php" class="mt-2" style="width: 150px; text-align:center;"><button
-                        class="btn btn-success p-2"><i class="fa fa-play mr-1"></i> Watch Movie</button></a>
-                  </div>
-                </div>
-              </div>
-            <?php endfor; ?>
-          </div>
-        </div>
-      </div>
-      <a class="carousel-control-prev" href="#carouselLatest" role="button" data-slide="prev" style="width: 30px">
-        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-        <span class="sr-only">Previous</span>
-      </a>
-      <a class="carousel-control-next" href="#carouselLatest" role="button" data-slide="next" style="width: 30px">
-        <span class="carousel-control-next-icon" aria-hidden="true"></span>
-        <span class="sr-only">Next</span>
-      </a>
-    </div>
-
-  </div>
-
-  <!-- Footer -->
-  <?php
-  include 'footer.php';
-  ?>
 
 </body>
 

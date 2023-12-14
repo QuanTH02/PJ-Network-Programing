@@ -50,8 +50,11 @@
                                 <div class="team-bottom-name" style="display: flex;">
                                     <div style="width: 100%; display: flex; ">
                                         <div class="member-plus-icon" style="display: flex;">
-                                            <p class="num-member" style="margin-right: 5px;">27</p>
-                                            <p style="margin-right: 20px;">members</p>
+                                            <a href="#" style="display: flex;">
+                                                <p class="num-member" style="margin-right: 5px;">27</p>
+                                                <p style="margin-right: 20px;">members</p>
+                                            </a>
+
                                             <button id="add-member-btn"><i class="fa-solid fa-user-plus"></i></button>
 
                                         </div>
@@ -96,13 +99,13 @@
                         <!-- Title -->
                         <tr>
                             <td class="table-img-folder"></td>
-                            <td class="table-name-folder">Name <button class="icon-down"><i
+                            <td class="table-name-folder" style="font-size: 12px;">Name <button class="icon-down"><i
                                         class="fa-solid fa-chevron-down"></i></button></td>
                             <td class="table-copy-move-download"></td>
-                            <td class="table-modified">Modified <button class="icon-down"><i
+                            <td class="table-modified" style="font-size: 12px;">Modified <button class="icon-down"><i
                                         class="fa-solid fa-chevron-down"></i></button></td>
-                            <td class="table-modified-by">Modified by<button class="icon-down"><i
-                                        class="fa-solid fa-chevron-down"></i></button></td>
+                            <td class="table-modified-by" style="font-size: 12px;">Modified by<button
+                                    class="icon-down"><i class="fa-solid fa-chevron-down"></i></button></td>
                             <td class="table-edit"></td>
                             <td class="table-remove"></td>
                         </tr>
@@ -182,14 +185,9 @@
                 <div class="add-member-invite-member" style="display: flex; ">
                     <div class="div-invite-member">
                         <div class="name-add" style="display: flex;">
-                            <div class="name-exit" style="display: flex;">
-                                <div class="name-invite">
-                                    Tran Hong Quan
-                                </div>
-                                <i class="fa-solid fa-xmark" style="margin-top: 6px; margin-left: -11px;"></i>
-                            </div>
+
                         </div>
-                                
+
                         <div class="div-invite-inp">
                             <input type="text" id="add-member-invite-member-inp" placeholder="Invite member">
                             <ul id="dropdown-list" style="position: absolute;"></ul>
