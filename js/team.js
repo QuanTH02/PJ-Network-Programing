@@ -1,10 +1,10 @@
 $(document).ready(function () {
     // Popup Add Member
     document.getElementById("add-member-btn").addEventListener("click", function () {
-        document.getElementById("addMemberPopup").style.display = "block";
+        document.getElementById("addMemberPopupInvite").style.display = "block";
     });
 
-    document.getElementById("addMemberPopup").addEventListener("click", function (event) {
+    document.getElementById("addMemberPopupInvite").addEventListener("click", function (event) {
         if (event.target === this) {
             var divInviteMember = document.querySelectorAll('.name-add');
             divInviteMember.forEach(function (divInviteMember) {
@@ -12,6 +12,16 @@ $(document).ready(function () {
             });
             this.style.display = "none";
         }
+    });
+
+    // Tắt Popup Invite và hiển thị successfully
+    document.querySelector('.invite-btn').addEventListener('click', function () {
+        document.getElementById("addMemberPopupInvite").style.display = "none";
+        document.getElementById("inviteSentSuccessPopup").style.display = "block";
+
+        setTimeout(function () {
+            document.getElementById("inviteSentSuccessPopup").style.display = "none";
+        }, 1000);
     });
 
     // Hover div and close icon
@@ -46,8 +56,8 @@ $(document).ready(function () {
 
     // Test
 
-    var inputElement = document.getElementById('add-member-invite-member-inp');
-    var dropdownList = document.getElementById('dropdown-list');
+    var inputElement = document.getElementById('add-member-invite-member-inp-team');
+    var dropdownList = document.getElementById('dropdown-list-team');
     var userNames = ["User1", "User2", "User3", "Tran Hong Quan 20205114"]; // Thay thế bằng danh sách tên người dùng thực tế
 
     inputElement.addEventListener('input', function () {
@@ -126,7 +136,7 @@ $(document).ready(function () {
                     dropdownList.appendChild(listItem); // Append listItem vào dropdownList
                 }
 
-                
+
             }
 
             // Sau khi kiểm tra xong, kiểm tra số lượng phần tử con bên trong dropdownList
@@ -137,6 +147,89 @@ $(document).ready(function () {
             }
         });
     });
+
+
+    // Block Members and Block Pending and Block navbar
+    var navBarMembers = document.querySelectorAll('.nav-bar-member');
+
+    navBarMembers.forEach(function (navBarMember) {
+        var aElements = navBarMember.querySelectorAll("a");
+
+        aElements.forEach(function (aElement) {
+            aElement.addEventListener('click', function (event) {
+                event.preventDefault();
+
+                // Loại bỏ borderBottom từ tất cả các thẻ <a> trong cùng một .nav-bar-member
+                aElements.forEach(function (element) {
+                    element.style.borderBottom = "none";
+                });
+
+                // Áp dụng borderBottom cho thẻ <a> hiện tại
+                aElement.style.borderBottom = "3px solid var(--color-bg-sidebar-li)";
+
+                // Kiểm tra nội dung của thẻ <h6>
+                var h6Element = aElement.querySelector('h6');
+
+                if (h6Element && h6Element.textContent === "Members") {
+                    // Nếu nội dung của thẻ <h6> là "Members", hiển thị .members
+                    document.querySelector('#members').style.display = "block";
+                    document.querySelector('#pending-requests').style.display = "none";
+                } else {
+                    // Nếu không, hiển thị .pending-requests
+                    document.querySelector('#members').style.display = "none";
+                    document.querySelector('#pending-requests').style.display = "block";
+                }
+            });
+        });
+    });
+
+    const clickMemberPending = document.getElementById("click-member-pending");
+    clickMemberPending.addEventListener("click", function () {
+        document.getElementById("id-list-folder").style.display = "none";
+        document.getElementById("id-nav-bar-member").style.display = "flex";
+        document.getElementById("list-member-pending").style.display = "block";
+        getTotalPending();
+
+        // Đặt thuộc tính href cho phần tử có lớp là "back-to-home"
+        const backToHome = document.getElementsByClassName("back-to-home")[0];
+        backToHome.href = "team.php";
+
+
+    });
+
+
+    function getTotalPending() {
+        var trElements = document.querySelectorAll('#pending-requests tr');
+        var totalCount = trElements.length;
+        totalCount--;
+        var totalPendingRequestElement = document.querySelector('.total-pending-request');
+        totalPendingRequestElement.textContent = totalCount.toString();
+    }
+
+    // Remove folder and remove file
+    var iconRemoves = document.getElementsByClassName("icon-remove");
+    var iconArray = Array.from(iconRemoves);
+
+    iconArray.forEach(function (iconRemove) {
+        iconRemove.addEventListener("click", function () {
+            document.getElementById("doYouWantToDeleted").style.display = "block";
+            var yesButtons = document.getElementsByClassName("yes-btn");
+            var yesButtonArray = Array.from(yesButtons);
+
+            yesButtonArray.forEach(function (yesButton) {
+                yesButton.addEventListener("click", function () {
+                    document.getElementById("doYouWantToDeleted").style.display = "none";
+                    document.getElementById("folderDeletedPopup").style.display = "block";
+
+                    setTimeout(function () {
+                        document.getElementById("folderDeletedPopup").style.display = "none";
+                    }, 1000);
+                });
+            });
+        });
+    });
+
+
 
 
 });

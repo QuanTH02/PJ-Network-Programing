@@ -50,10 +50,14 @@
             <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown"
               aria-expanded="false" id="filter-btn"><i class="material-icons"
                 style="font-size:24px; vertical-align: middle;">filter_list</i></button>
-            <ul class="dropdown-menu mt-2" style="width: 100px;">
-              <li><a class="dropdown-item" id="filter-all" href="#">All<i class="fa-solid fa-check" style="float: right; margin-top: 3px;"></i></a></li>
-              <li><a class="dropdown-item" id="filter-alpha" href="#">A-Z<i class="fa-solid fa-check" style="float: right; margin-top: 3px;"></i></a></li>
-              <li><a class="dropdown-item" id="filter-reverse-alpha" href="#">Z-A<i class="fa-solid fa-check" style="float: right; margin-top: 3px;"></i></a></li>
+            <ul class="dropdown-menu mt-2 ul-filter-team" style="width: 100px;">
+              <li><a class="dropdown-item" id="filter-all" href="#" style="background-color: #5A5A72;">All<i
+                    class="fa-solid fa-check" style="float: right; margin-top: 3px; display: block;"
+                    id="check-filter-all"></i></a></li>
+              <li><a class="dropdown-item" id="filter-alpha" href="#">A-Z<i class="fa-solid fa-check"
+                    style="float: right; margin-top: 3px; display: none;" id="check-filter-alpha"></i></a></li>
+              <li><a class="dropdown-item" id="filter-reverse-alpha" href="#">Z-A<i class="fa-solid fa-check"
+                    style="float: right; margin-top: 3px; display: none;" id="check-filter-reverse-alpha"></i></a></li>
             </ul>
           </div>
 
@@ -158,6 +162,13 @@
                 <br>
                 <h6>Network Programing</h6>
               </a>
+              <a href="team.php" class="col-2 team" style="margin-bottom: 34px; margin-right: 16px; margin-left: 18px;">
+                <div class="team-element">
+                  <div class="img-div"></div>
+                </div>
+                <br>
+                <h6>A</h6>
+              </a>
 
             </div>
 
@@ -192,10 +203,46 @@
           <input type="text" id="create-team-des" placeholder="Description" style="margin-bottom: 3px;">
           <p class="p-message" id="p-message-create-team">The team name already exists</p>
           <button class="btn btn-success next-btn create-team-btn"
-            style="margin-left: auto; background-color: #4D4D4D; margin-top: 18px ">Next</button>
+            style="margin-left: auto; background-color: #4D4D4D; margin-top: 18px;" id="next-btn-create-team">Next</button>
         </div>
 
 
+      </div>
+    </div>
+
+    <!-- Popup Add Member -->
+    <div class="popup" id="addMemberPopup">
+      <div class="popup-content">
+        <i class="fa-solid fa-users" style="font-size: 16px;"></i>
+        <h5>Add members</h5>
+        <div class="div-add-member" style="display:flex; margin-top: 20px; flex-direction: column;">
+          <div class="add-member-team-code" style="display: flex;">
+            <div class="team-code" style="display: flex;" id="teamCode">
+              <input type="text" placeholder="123456" readonly>
+              <button id="copyButton"><i class="fa-regular fa-copy"></i></button>
+            </div>
+            <button class="refresh-btn"><i class="fa-solid fa-rotate-left"></i></button>
+          </div>
+          <p>Share this code so people can join the team directly</p>
+
+          <!-- Add member -->
+          <div class="add-member-invite-member" style="display: flex; ">
+            <div class="div-invite-member">
+              <div class="name-add" style="display: flex;">
+
+              </div>
+
+              <div class="div-invite-inp">
+                <input type="text" id="add-member-invite-member-inp" placeholder="Invite member">
+                <ul id="dropdown-list" style="position: absolute;"></ul>
+              </div>
+            </div>
+
+            <button><i class="fa-solid fa-user-plus"></i></button>
+          </div>
+          <br>
+          <button class="btn btn-success skip-btn" style="margin-left: auto; width: 100px;">Skip</button>
+        </div>
       </div>
     </div>
 
