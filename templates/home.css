@@ -1,0 +1,766 @@
+/* CSS */
+:root {
+    --color-body: #23232C;
+    --color-text: rgba(255, 255, 255, 0.8);
+    --color-text-0-6: rgba(255, 255, 255, 0.6);
+    --color-border-sidebar: rgba(255, 255, 255, 0.1);
+    --color-bg-sidebar-li: #5F43B2;
+    --color-bg-sidebar-li-hover: rgba(95, 67, 178, 0.8);
+    --color-bg-search: #4D4D4D;
+    --color-bg-team: #383847;
+    --color-bg-team-border: #808080;
+    --color-bg-ul-li: rgb(56, 56, 71);
+    --color-p-message-wrong: rgba(219, 40, 40, 0.5);
+    --color-bg-check-popup: rgba(33, 186, 69, 1);
+    --color-popup-border-bottom:rgba(90, 90, 114, 1);
+}
+
+body {
+    background-color: var(--color-body);
+    color: var(--color-text);
+    font-family: 'Poppins';
+}
+
+a {
+    color: var(--color-text);
+}
+
+.col-sidebar {
+    border-right: 1px solid var(--color-border-sidebar);
+}
+
+.sidebar-img-username {
+    border-top: 1px solid var(--color-border-sidebar);
+    padding: 10px;
+}
+
+.sidebar-img-username div img {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+}
+
+.sidebar-teams-noti ul li,
+.sidebar-img-username {
+    list-style-type: none;
+    margin: 10px 8%;
+    padding: 15px 20px 15px 25px;
+
+}
+
+.sidebar-img-username {
+    width: 100%;
+    list-style-type: none;
+    margin: 10px 8% 10px 8%;
+    padding: 15px 0px;
+
+}
+
+.sidebar-teams-noti ul li {
+    border-radius: 8px;
+}
+
+.sidebar-teams-noti ul li:hover {
+    background-color: var(--color-bg-sidebar-li);
+}
+
+.sidebar-teams-noti ul li i,
+.sidebar-teams-noti ul li p {
+    display: inline;
+}
+
+.sidebar-teams-noti ul li i {
+    font-size: 18px;
+    margin-right: 10px;
+}
+
+.sidebar-teams-noti ul a {
+    text-decoration: none;
+    color: var(--color-text);
+}
+
+.search-box {
+    border: 1px solid rgba(255, 255, 255, 0.7);
+    border-radius: 30px;
+    padding: 6px 17px;
+    margin-right: 30px;
+}
+
+.search-box input {
+    background-color: var(--color-body);
+    width: 250px;
+    border: 0px;
+    outline: none;
+    color: var(--color-text);
+    font-size: 14px;
+}
+
+.search-box input::placeholder,
+.p-message {
+    font-size: 12px;
+    font-style: italic;
+}
+
+.p-message {
+    margin-bottom: 0px;
+    text-align: start;
+    margin-top: 2px;
+    color: var(--color-p-message-wrong);
+    display: none;
+}
+
+.header,
+.list-team {
+    margin-top: 52px;
+}
+
+.search-and-filter button {
+    background-color: var(--color-body);
+    border: 0px;
+    outline: none;
+    color: var(--color-text);
+    padding: 3px;
+}
+
+.search-and-filter button:hover,
+.btn-join-team button:hover,
+.member-plus-icon i:hover,
+.tr-folder-list i:hover {
+    color: var(--color-text-0-6);
+}
+
+.btn-join-team {
+    border: 1px solid var(--color-text-0-6);
+    padding: 6px 17px;
+    border-radius: 10px;
+    margin-right: 60px;
+}
+
+.btn-join-team button {
+    background-color: var(--color-body);
+    border: 0px;
+    outline: none;
+    color: var(--color-text);
+    padding: 3px;
+}
+
+
+.list-team {
+    width: 100%;
+    height: 500px;
+    overflow-y: auto;
+}
+
+.list-folder {
+    width: 100%;
+    height: 400px;
+    overflow-y: auto;
+    border-top: 1px solid var(--color-border-sidebar);
+}
+
+.nav-bar-member {
+    margin-top: 40px;
+    margin-left: -20px;
+    margin-bottom: -25px;
+}
+
+.nav-bar-member a {
+    margin-right: 20px;
+    border-bottom: 3px transparent solid;
+    padding: 0px 10px;
+}
+
+.nav-bar-member a:hover {
+    text-decoration: none;
+    color: var(--color-text-0-6);
+}
+
+.nav-bar-member h6 {
+    font-weight: 700;
+    margin-bottom: 4px;
+
+}
+
+.div-list-team {
+    display: flex;
+    width: 97%;
+    margin-left: 2.3%;
+    padding-right: 0.2%;
+}
+
+.list-team::-webkit-scrollbar,
+.list-folder::-webkit-scrollbar {
+    width: 5px;
+    /* Độ rộng của thanh cuộn */
+}
+
+.list-team::-webkit-scrollbar-track,
+.list-folder::-webkit-scrollbar-track {
+    background-color: rgba(255, 255, 255, 0);
+    border-radius: 5px;
+    /* Màu nền của phần theo dõi */
+}
+
+.list-team::-webkit-scrollbar-thumb,
+.list-folder::-webkit-scrollbar-thumb {
+    background-color: #888;
+    border-radius: 5px;
+    /* Màu nền của nút cuộn */
+}
+
+.list-team::-webkit-scrollbar-thumb:hover,
+.list-folder::-webkit-scrollbar-thumb:hover {
+    background-color: #555;
+    /* Màu nền của nút cuộn khi di chuột qua */
+}
+
+.team {
+    height: 190px;
+    border: 1px solid var(--color-bg-team-border);
+    padding: 10px;
+    border-radius: 10px;
+    background-color: var(--color-bg-team);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    margin-bottom: 34px;
+    margin-right: 16px;
+    margin-left: 18px;
+}
+
+.team:hover {
+    background-color: #343442;
+    text-decoration: none;
+}
+
+.team-element .img-div {
+    width: 70px;
+    height: 70px;
+    border-radius: 10px;
+    /* background-color: #23232C; */
+    background-color: #2a2a34;
+}
+
+.team h6 {
+    text-align: center;
+    margin-left: 10px;
+    margin-right: 10px;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.btn-secondary:hover,
+.btn-secondary:focus {
+    background-color: transparent;
+    box-shadow: none;
+    outline: none;
+    /* Loại bỏ đường viền khi focus */
+}
+
+.dropdown-menu {
+    background-color: var(--color-bg-ul-li);
+    padding: 5px 10px 20px 10px;
+
+}
+
+.dropdown-menu a {
+    padding: 7px 10px;
+    border-radius: 10px;
+    margin-top: 10px;
+    color: var(--color-text);
+    background-color: transparent;
+}
+
+.dropdown-menu a:hover {
+    background-color: #5A5A72;
+    color: var(--color-text);
+}
+
+
+/* Popup */
+
+/* Hiển thị popup */
+.popup {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    z-index: 1;
+    overflow: auto;
+}
+
+/* Hiển thị nội dung trong popup giữa trang */
+.popup-content {
+    position: absolute;
+    top: 45%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: #383847;
+    padding: 20px;
+    border-radius: 5px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+/* Định dạng nội dung popup */
+.popup-content h5 {
+    margin-top: 0;
+    font-weight: 700;
+}
+
+.popup-content i {
+    color: var(--color-bg-sidebar-li);
+    margin-top: 10px;
+    margin-bottom: 20px;
+}
+
+.popup-content input {
+    width: 300px;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 14px;
+    padding-left: 15px;
+    background-color: transparent;
+    color: var(--color-text);
+}
+
+.popup-content input::placeholder {
+    font-size: 12px;
+    font-style: italic;
+}
+
+.popup-content button {
+    margin-left: 20px;
+    background-color: var(--color-bg-sidebar-li);
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    vertical-align: middle;
+}
+
+.popup-content button:hover,
+.popup-content button:focus {
+    background-color: var(--color-bg-sidebar-li-hover);
+    box-shadow: none;
+    outline: none;
+    /* Loại bỏ đường viền khi focus */
+}
+
+
+.div-create-team input {
+    margin-bottom: 20px;
+    background-color: transparent;
+    color: var(--color-text);
+    width: 420px;
+}
+
+.div-create-team button {
+    width: 100px;
+}
+
+.back-to-home {
+    color: var(--color-bg-sidebar-li);
+    width: 80px;
+    margin-bottom: 20px;
+}
+
+.back-to-home:hover {
+    color: rgb(120, 67, 178);
+    text-decoration: none;
+}
+
+#create-team-des {
+    height: 80px;
+}
+
+.div-team-img {
+    width: 100px;
+    height: 100px;
+    border-radius: 10px;
+    background-color: white;
+}
+
+.upload-and-new-folder div,
+.upload-and-new-folder div i,
+.upload-and-new-folder div p {
+    display: inline;
+}
+
+.upload-and-new-folder div i {
+    margin-right: 6px;
+}
+
+.team-right-img {
+    width: 86.5%;
+    /* width: 88.5%; */
+    padding-left: 40px;
+}
+
+.team-right-img h4 {
+    margin-top: 0px;
+    margin-bottom: 20px;
+}
+
+.member-plus-icon p {
+    margin-bottom: 0px;
+}
+
+.member-plus-icon i {
+    color: var(--color-text);
+}
+
+.member-plus-icon button {
+    background-color: transparent;
+    border: transparent;
+    margin-top: -4px;
+    width: 30px;
+    height: 30px;
+}
+
+.member-plus-icon a:hover {
+    text-decoration: none;
+    color: var(--color-text-0-6);
+}
+
+.upload-and-new-folder button {
+    padding: 10px 20px 10px 20px;
+    border-radius: 10px;
+}
+
+.upload-btn {
+    background-color: var(--color-bg-sidebar-li);
+    color: var(--color-text);
+    border: transparent;
+}
+
+.upload-btn:hover {
+    background-color: var(--color-bg-sidebar-li-hover);
+}
+
+
+.new-folder-btn {
+    border: 1px solid var(--color-bg-sidebar-li);
+    color: var(--color-bg-sidebar-li);
+    background-color: transparent;
+    margin-left: 10px;
+}
+
+.new-folder-btn:hover {
+    color: var(--color-bg-sidebar-li-hover);
+}
+
+.table-folder div {
+    padding: 0px;
+}
+
+table tr td {
+    padding: 15px 0px 15px 0px;
+}
+
+table tr {
+    border-bottom: 1px solid var(--color-border-sidebar);
+}
+
+.table-img-folder {
+    width: 8%;
+    /* text-align: center; */
+}
+
+.table-img-folder {
+    width: 8%;
+}
+
+.table-img-folder img {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+}
+
+.table-remove,
+.table-edit,
+.table-remove-member,
+.table-decline,
+.table-accept {
+    width: 5%;
+    margin-right: 10px;
+}
+
+.table-img-folder {
+    text-align: center;
+}
+
+
+.table-name-folder {
+    width: 28%;
+}
+
+.table-name-member {
+    width: 40%;
+}
+
+.table-name-member-invite {
+    width: 40%;
+}
+
+.table-modified,
+.table-modified-by {
+    width: 18%;
+}
+
+.table-copy-move-download {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    text-align: end;
+    padding-right: 40px;
+    opacity: 0;
+}
+
+.table-invite-date {
+    width: 20;
+}
+
+.icon-down {
+    margin-left: 20px;
+    background-color: transparent;
+    border: transparent;
+}
+
+.fa-chevron-down {
+    color: var(--color-text);
+}
+
+.tr-folder-list button {
+    background-color: transparent;
+    border: transparent;
+}
+
+
+.tr-folder-list i {
+    color: var(--color-text);
+}
+
+.tr-folder-list img {
+    color: red;
+}
+
+.div-add-member div button {
+    background-color: transparent;
+    padding: 0px;
+    color: var(--color-text);
+    width: 30px;
+    height: 30px;
+}
+
+.div-add-member div button:hover {
+    background-color: transparent;
+    color: var(--color-bg-sidebar-li-hover);
+}
+
+.div-add-member i {
+    font-size: 20px;
+    color: var(--color-text);
+}
+
+.team-code {
+    width: 100%;
+    border: 1px solid var(--color-bg-team-border);
+    padding-left: 3px;
+    border-radius: 10px;
+    display: flex;
+    background-color: #333333;
+}
+
+.team-code input {
+    border: transparent;
+    padding: 0px;
+    height: 50px;
+    border: 0px;
+    outline: none;
+    padding-left: 10px;
+}
+
+.team-code button {
+    display: none;
+}
+
+.search-box input {
+    background-color: var(--color-body);
+    outline: none;
+    color: var(--color-text);
+    font-size: 14px;
+}
+
+.team-code button,
+.refresh-btn {
+    margin-top: 5px;
+    margin-left: 10px;
+}
+
+.add-member-team-code {
+    margin-bottom: 4px;
+    width: 410px;
+}
+
+.popup button i:hover {
+    color: var(--color-text-0-6);
+}
+
+
+.div-add-member p {
+    font-style: italic;
+    color: var(--color-text-0-6);
+    font-size: 12px;
+    text-align: start;
+}
+
+.add-member-invite-member input {
+    height: 50px;
+}
+
+
+/* .team-code input {
+    border: transparent;
+    padding: 0px;
+    height: 50px;
+} */
+
+#filter-btn::after {
+    content: none;
+}
+
+.div-invite-member {
+    width: 600px;
+    text-align: start;
+    display: flex;
+
+    padding: 0px 8px 0px 2px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 14px;
+    padding-left: 10px;
+    background-color: transparent;
+    color: var(--color-text);
+}
+
+.name-invite {
+    width: auto;
+}
+
+.div-invite-inp {
+    height: auto;
+
+}
+
+.name-invite {
+    margin-top: 12px;
+    margin-bottom: 13px;
+    padding: 5px 15px;
+    border: 1px solid #ccc;
+    border-radius: 20px;
+    background-color: rgba(56, 56, 71, 1);
+}
+
+#add-member-invite-member-inp, #add-member-invite-member-inp-team {
+    width: 100%;
+    border-color: var(--color-text-0-6);
+    color: red;
+    border: none;
+    outline: none;
+    padding: 0px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    height: 35px;
+    margin-left: 10px;
+    border-radius: 0px;
+}
+
+.fa-xmark {
+    opacity: 0;
+    color: var(--color-text);
+    cursor: pointer;
+}
+
+.fa-xmark:hover {
+    color: var(--color-text-0-6);
+    cursor: pointer;
+}
+
+.name-exit {
+    margin-left: 5px;
+    display: flex;
+}
+
+#dropdown-list, #dropdown-list-team {
+    display: none;
+    border: 1px solid var(--color-bg-team-border);
+    list-style-type: none;
+    padding: 6px 8px;
+    background-color: var(--color-bg-ul-li);
+    box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.05);
+    margin-top: -3px;
+}
+
+#dropdown-list li, #dropdown-list-team li {
+    margin-top: 1.5px;
+    margin-bottom: 1.5px;
+    padding: 5px;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+#dropdown-list li:hover, #dropdown-list-team li:hover {
+    background-color: #23232C;
+    cursor: pointer;
+}
+
+.tr-folder-list:hover {
+    background-color: rgba(56, 56, 71, 1);
+
+    .table-copy-move-download {
+        opacity: 1;
+    }
+}
+
+.total-pending-request {
+    margin-top: -10px;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background-color: red;
+    padding: 1px;
+    text-align: center;
+    font-size: 12px;
+}
+
+.deleted {
+    margin-top: 22px;
+}
+
+.deleted i {
+    margin-top: -5px;
+    margin-right: 20px;
+    background-color: var(--color-bg-check-popup);
+    width: 30px;
+    height: 30px;
+    padding-top: 5px;
+    font-size: 20px;
+    border-radius: 50%;
+    color: white;
+}
+
+.popup-border-bot {
+    border-bottom: 2px solid var(--color-popup-border-bottom);
+}
+
+.yesNoPopup button {
+    margin-top: 10px;
+    padding: 2px 20px;
+    margin-bottom: 10px;
+    margin-left: 0px;
+}
