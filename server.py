@@ -1,11 +1,36 @@
 import socket
 import threading
+import sqlite3
 
 IP = socket.gethostbyname(socket.gethostname())
 PORT = 5000
 ADDR = (IP, PORT)
 SIZE = 1024
 FORMAT = "utf-8"
+
+DB_CONNECTIONS = {}
+DB_CONNECTIONS_LOCK = threading.Lock()
+ACTIVE_SESSIONS = {}
+ACTIVE_SESSIONS_LOCK = threading.Lock()
+
+
+def get_database_connection():
+    thread_id = threading.current_thread().ident
+    with DB_CONNECTIONS_LOCK:
+        if thread_id not in DB_CONNECTIONS:
+            DB_CONNECTIONS[thread_id] = sqlite3.connect("file_share.db")
+        else:
+            try:
+                # Try a simple query to check if the connection is still alive
+                DB_CONNECTIONS[thread_id].execute("SELECT 1").fetchone()
+            except sqlite3.ProgrammingError:
+                # Reconnect if the connection is closed
+                DB_CONNECTIONS[thread_id] = sqlite3.connect("file_share.db")
+        return DB_CONNECTIONS[thread_id]
+
+
+def close_connection(dbconn):
+    dbconn.close()
 
 def handle_client(conn, addr):
 
