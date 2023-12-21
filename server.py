@@ -7,7 +7,7 @@ import random
 import string
 import bcrypt
 
-IP = "127.0.0.1"
+IP = "0.0.0.0"
 PORT = 5000
 ADDR = (IP, PORT)
 SIZE = 1024

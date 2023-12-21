@@ -1,7 +1,7 @@
 import socket
 import os
 
-IP = "127.0.0.1"
+IP = socket.gethostbyname(socket.gethostname())
 PORT = 5000
 ADDR = (IP, PORT)
 FORMAT = "utf-8"
