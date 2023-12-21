@@ -39,101 +39,6 @@ def close_connection(dbconn):
     dbconn.close()
 
 
-def random_team_code(cursor):
-    characters = string.ascii_letters + string.digits
-    code = "".join(random.choice(characters) for _ in range(6))
-    cursor.execute("Select team_code from team")
-    result = cursor.fetchall()
-    while code in result:
-        characters = string.ascii_letters + string.digits
-        code = "".join(random.choice(characters) for _ in range(6))
-    return code
-
-
-def is_valid_password(password):
-    if len(password) < 8:
-        return False
-    if not re.search(r"[A-Z]", password):
-        return False
-    if not re.search(r"[a-z]", password):
-        return False
-    if not re.search(r"\d", password):
-        return False
-    return True
-
-
-def get_account_id(username, cursor):
-    cursor.execute("SELECT account_id FROM Account WHERE account=?", (username,))
-    result = cursor.fetchone()
-    return result[0] if result else None
-
-
-def login(conn, data, cursor, addr):
-    username, password = data[1], data[2]
-
-    if username == "" or password == "":
-        send_data = "2011"
-    else:
-        with DB_CONNECTIONS_LOCK:
-            cursor.execute("SELECT password FROM Account WHERE account=?", (username,))
-            result = cursor.fetchone()
-
-        if result:
-            with ACTIVE_SESSIONS_LOCK:
-                session_key = f"{addr[0]}:{addr[1]}:{username}"
-                ACTIVE_SESSIONS[session_key] = {
-                    "account_id": username,
-                    "username": username,
-                }
-            send_data = "1030"
-        else:
-            send_data = "2032"
-
-    conn.send(send_data.encode(FORMAT))
-    if "username" in locals():
-        return ACTIVE_SESSIONS.get(f"{addr[0]}:{addr[1]}:{username}")
-    else:
-        return None
-
-
-def register(conn, data, cursor, dbconn):
-    username, password, name = data[1], data[2], data[3]
-    if username == "" or password == "" or name == "":
-        send_data = "2011"
-    elif is_valid_password(password) is False:
-        send_data = "2012"
-    else:
-        with DB_CONNECTIONS_LOCK:
-            cursor.execute("SELECT account FROM Account WHERE account = ?", (username,))
-            result = cursor.fetchone()
-
-        if result:
-            send_data = "2013"
-        else:
-            send_data = "1010"
-            hashed_password = bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt())
-            cursor.execute(
-                "INSERT INTO Account (account, password, name) VALUES (?, ?, ?)",
-                (username, hashed_password, name),
-            )
-            dbconn.commit()
-
-    conn.send(send_data.encode(FORMAT))
-
-
-def dir_information(conn, data):
-    dir = data[1]
-    path = os.path.join(SERVER_DATA_PATH, dir)
-    files = os.listdir(path)
-    send_data = "1170"
-
-    if len(files) == 0:
-        send_data += "The server directory is empty"
-    else:
-        send_data += "\n".join(f for f in files)
-    conn.send(send_data.encode(FORMAT))
-
-
 def upload_file(conn, data):
     name, text = data[1], data[2]
     filepath = os.path.join(SERVER_DATA_PATH, name)
@@ -156,9 +61,6 @@ def make_directory(conn, data):
 
     conn.send(send_data.encode(FORMAT))
 
-# ----------------------------------------------------------------
-# ----------------------------------------------------------------
-# ----------------------------------------------------------------
 
 def create_directory(conn, data):
     dir_path = data[1]
@@ -234,49 +136,6 @@ def move_directory(conn, data):
 
     conn.send(send_data.encode(FORMAT))
 
-# ----------------------------------------------------------------
-# ----------------------------------------------------------------
-# ----------------------------------------------------------------
-
-
-def delete_file(conn, data):
-    filename = data[1]
-    path = f"{SERVER_DATA_PATH} / {filename}"
-    os.remove(path)
-
-    send_data = "1210"
-    conn.send(send_data.encode(FORMAT))
-
-
-def create_team(conn, data, cursor, dbconn):
-    team_name, account = data[1], data[2]
-
-    if not team_name:
-        send_data = "2011"
-    else:
-        cursor.execute("SELECT team_name FROM team WHERE team_name = ?", (team_name,))
-        result = cursor.fetchone()
-        if result is not None:
-            send_data = "2041"
-        else:
-            send_data = "1040"
-            team_path = os.path.join(SERVER_DATA_PATH, team_name)
-            os.makedirs(team_path)
-            team_code = random_team_code(cursor)
-            cursor.execute(
-                "INSERT INTO team (leader, team_name, team_code) VALUES (?, ?, ?)",
-                (account, team_name, team_code),
-            )
-            dbconn.commit()
-
-            cursor.execute(
-                "INSERT INTO team_member (account, team_name) VALUES (?, ?)",
-                (account, team_name),
-            )
-            dbconn.commit()
-
-    conn.send(send_data.encode(FORMAT))
-
 
 def show_my_teams(conn, data, cursor):
     username = data[1]
@@ -328,26 +187,13 @@ def handle_client(conn, addr):
         data = data.split("\n")
         cmd = data[0]
 
-        if cmd == "LOGIN":
-            active_session = login(conn, data, cursor, addr)
-        elif cmd == "LOGOUT":
-            active_session = None
-            break
-        elif cmd == "SIGNUP":
-            register(conn, data, cursor, dbconn)
-        elif active_session is not None:
+        if active_session is not None:
             account_id = active_session["account_id"]
             username = active_session["username"]
-            if cmd == "LIST":
-                dir_information(conn, data)
-            elif cmd == "UPLOAD":
+            if cmd == "UPLOAD":
                 upload_file(conn, data)
-            elif cmd == "DELETE":
-                delete_file(conn, data)
             elif cmd == "MKDIR":
                 make_directory(conn, data)
-            elif cmd == "CREATE_TEAM":
-                create_team(conn, data, cursor, dbconn)
             elif cmd == "SHOW_MY_TEAMS":
                 show_my_teams(conn, data, cursor)
             elif cmd == "GET_MEMBER":
