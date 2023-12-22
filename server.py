@@ -6,6 +6,7 @@ import re
 import random
 import string
 import bcrypt
+import shutil
 
 IP = "0.0.0.0"
 PORT = 5000
@@ -56,12 +57,100 @@ def close_connection(dbconn):
     dbconn.close()
 
 
-def delete_file(conn, data):
+def delete_file(conn, data, cursor, dbconn):
     filename = data[1]
     path = f"{SERVER_DATA_PATH} / {filename}"
     os.remove(path)
+    cursor.execute("Delete from upload_file where file_path = ?", (path,))
+    dbconn.commit()
 
     send_data = "1210"
+    conn.send(send_data.encode(FORMAT))
+
+
+def rename_file(conn, data, cursor, dbconn):
+    file_path = data[1]
+    new_file_name = data[2]
+    file_name = file_path.split("/")[-1]
+    file_directory = "/".join(file_path.split("/")[:-1])
+    full_new_path = f"{file_directory}/{new_file_name}"
+
+    if not new_file_name:
+        send_data = "2202"  # Invalid new file name
+    elif "/" in new_file_name or "\\" in new_file_name:
+        send_data = "2202"
+    elif new_file_name.endswith("."):
+        send_data = "2202"
+    else:
+        new_file_extension = new_file_name.split(".")[-1]
+        old_file_extension = file_name.split(".")[-1]
+
+        if new_file_extension.lower() != old_file_extension.lower():
+            send_data = "2203"
+        else:
+            new_full_path = f"{file_directory}/{new_file_name}"
+
+            try:
+                os.rename(file_path, new_full_path)
+                send_data = "1200"
+                cursor.execute(
+                    "Update Upload_file set file_path = ? where file_path = ?",
+                    (file_path, new_full_path),
+                )
+                dbconn.commit()
+            except FileNotFoundError:
+                send_data = "2201"
+            except FileExistsError:
+                send_data = "2201"
+
+    conn.send(send_data.encode(FORMAT))
+
+
+def copy_file(conn, data, cursor, dbconn):
+    source_path = data[1]
+    destination_directory = data[2]
+    account = data[3]
+    source_file_name = source_path.split("/")[-1]
+    destination_path = f"{destination_directory}/{source_file_name}"
+    if os.path.exists(destination_path):
+        send_data = "2181"
+    else:
+        try:
+            shutil.copy2(source_path, destination_path)
+            send_data = "1220"
+            cursor.execute(
+                "INSERT INTO upload_file (file_path, upload_user, time_upload) VALUES (?, ?, datetime('now'))",
+                (destination_path, account),
+            )
+            dbconn.commit()
+        except Exception as e:
+            print(e)
+            send_data = "2221"
+
+    conn.send(send_data.encode(FORMAT))
+
+
+def move_file(conn, data, cursor, dbconn):
+    source_path = data[1]
+    destination_directory = data[2]
+    source_file_name = source_path.split("/")[-1]
+    destination_path = f"{destination_directory}/{source_file_name}"
+
+    if os.path.exists(destination_path):
+        send_data = "2181"
+    else:
+        try:
+            shutil.move(source_path, destination_path)
+            cursor.execute(
+                "UPDATE upload_file SET file_path = ?, time_upload = datetime('now') WHERE file_path = ?",
+                (destination_path, source_path),
+            )
+            dbconn.commit()
+            send_data = "1230"
+        except Exception as e:
+            print(e)
+            send_data = "2207"
+
     conn.send(send_data.encode(FORMAT))
 
 
@@ -104,7 +193,7 @@ def handle_client(conn, addr):
         data = data.split("\n")
         cmd = data[0]
         if cmd == "DELETE":
-            delete_file(conn, data)
+            delete_file(conn, data, cursor, dbconn)
         elif cmd == "CREATE_TEAM":
             create_team(conn, data, cursor, dbconn)
         else:
