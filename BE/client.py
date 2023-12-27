@@ -28,10 +28,18 @@ def display_main_menu():
     choice = input("Choose an option (1-10): ")
     return choice
 
+def responseFromServer(client):
+    request = client.recv(SIZE).decode(FORMAT)
+    responses = request.split('\r\n')
+
+    for response in responses:
+        print(response)
+
+
 def show_my_teams(client, username):
-    client.send(f"SHOW_MY_TEAMS\n{username}".encode(FORMAT))
-    response = client.recv(SIZE).decode(FORMAT)
-    print(response)
+    client.send(f"SHOW_MY_TEAMS\n{username}\r\nGET_MEMBER\nToan".encode(FORMAT))
+    # response = client.recv(SIZE).decode(FORMAT)
+    # print(response)
 
 def upload_file(client, path):
     with open(path, "r") as f:
@@ -39,44 +47,79 @@ def upload_file(client, path):
 
     filename = os.path.basename(path)
     client.send(f"UPLOAD\n{filename}\n{text}".encode(FORMAT))
-    response = client.recv(SIZE).decode(FORMAT)
-    print(response)
+    # response = client.recv(SIZE).decode(FORMAT)
+    # print(response)
 
 def make_directory(client, dir_name):
     client.send(f"MKDIR\n{dir_name}".encode(FORMAT))
-    response = client.recv(SIZE).decode(FORMAT)
-    print(response)
+    # response = client.recv(SIZE).decode(FORMAT)
+    # print(response)
 
 def show_team_member(client, team_name):
     client.send(f"GET_MEMBER\n{team_name}".encode(FORMAT))
-    response = client.recv(SIZE).decode(FORMAT)
-    print(response)
+    # response = client.recv(SIZE).decode(FORMAT)
+    # print(response)
 
 def create_directory(client, dir_path, dir_name, username):
     client.send(f"CREATE_FOLDER\n{dir_path}\n{dir_name}\n{username}".encode(FORMAT))
-    response = client.recv(SIZE).decode(FORMAT)
-    print(response)
+    # response = client.recv(SIZE).decode(FORMAT)
+    # print(response)
 
 def rename_directory(client, dir_path, dir_name):
     client.send(f"RENAME_FOLDER\n{dir_path}\n{dir_name}".encode(FORMAT))
-    response = client.recv(SIZE).decode(FORMAT)
-    print(response)
+    # response = client.recv(SIZE).decode(FORMAT)
+    # print(response)
 
 def delete_directory(client, dir_path):
     client.send(f"DELETE_FOLDER\n{dir_path}".encode(FORMAT))
-    response = client.recv(SIZE).decode(FORMAT)
-    print(response)
+    # response = client.recv(SIZE).decode(FORMAT)
+    # print(response)
 
 def copy_directory(client, dir_path, des_path):
     client.send(f"COPY_FOLDER\n{dir_path}\n{des_path}".encode(FORMAT))
-    response = client.recv(SIZE).decode(FORMAT)
-    print(response)
+    # response = client.recv(SIZE).decode(FORMAT)
+    # print(response)
 
 def move_directory(client, dir_path, des_path):
     client.send(f"MOVE_FOLDER\n{dir_path}\n{des_path}".encode(FORMAT))
-    response = client.recv(SIZE).decode(FORMAT)
-    print(response)
+    # response = client.recv(SIZE).decode(FORMAT)
+    # print(response)
 
+
+####################################################################
+####################################################################
+####################################################################
+    
+def login(client):
+    username = input("Enter username: ")
+    password = input("Enter password: ")
+    client.send(f"LOGIN\n{username}\n{password}".encode(FORMAT))
+    response = client.recv(SIZE).decode(FORMAT)
+    print(f"{response}")
+
+    if response.startswith("1030"):
+        print("Login successful!")
+        return {"username": username}
+    else:
+        print("Login failed. Please try again.")
+        return None
+    
+def signup(client):
+    username = input("Enter username: ")
+    password = input("Enter password: ")
+    name = input("Enter your name: ")
+    client.send(f"SIGNUP\n{username}\n{password}\n{name}".encode(FORMAT))
+    response = client.recv(SIZE).decode(FORMAT)
+    print(f"{response}")
+    if response.startswith("1010"):
+        print("Signup successful!")
+    else:
+        print("Signup failed. Please try again.")
+
+####################################################################
+####################################################################
+####################################################################
+        
 def main():
     client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     client.connect(ADDR)
@@ -90,8 +133,14 @@ def main():
             choice = display_login_menu()
 
             if choice == "1":
-                active_session = True
-
+                active_session = login(client)
+            elif choice == "2":
+                signup(client)
+            elif choice == "3":
+                client.send("LOGOUT".encode(FORMAT))
+                break
+            else:
+                print("Invalid choice. Please try again.")
         else:
             choice = display_main_menu()
 
@@ -130,6 +179,8 @@ def main():
                 break
             else:
                 print("Invalid choice. Please try again.")
+
+            responseFromServer(client)
 
     print("Disconnected from the server.")
     client.close()

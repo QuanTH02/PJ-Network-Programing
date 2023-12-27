@@ -2,12 +2,8 @@ import os
 import socket
 import threading
 import sqlite3
-import re
-import random
-import string
-import bcrypt
 
-IP = socket.gethostbyname(socket.gethostname())
+IP = "0.0.0.0"
 PORT = 5000
 ADDR = (IP, PORT)
 SIZE = 1024
@@ -46,7 +42,8 @@ def upload_file(conn, data):
         f.write(text)
 
     send_data = "1180"
-    conn.send(send_data.encode(FORMAT))
+    # conn.send(send_data.encode(FORMAT))
+    return send_data
 
 
 def make_directory(conn, data):
@@ -59,7 +56,8 @@ def make_directory(conn, data):
     except FileExistsError:
         send_data = "2242"
 
-    conn.send(send_data.encode(FORMAT))
+    # conn.send(send_data.encode(FORMAT))
+    return send_data
 
 
 def create_directory(conn, data):
@@ -74,7 +72,8 @@ def create_directory(conn, data):
     except FileExistsError:
         send_data = "2242"
 
-    conn.send(send_data.encode(FORMAT))
+    # conn.send(send_data.encode(FORMAT))
+    return send_data
 
 def rename_directory(conn, data):
     dir_path = data[1]
@@ -88,7 +87,8 @@ def rename_directory(conn, data):
     except FileExistsError:
         send_data = "2241"
 
-    conn.send(send_data.encode(FORMAT))
+    # conn.send(send_data.encode(FORMAT))
+    return send_data
 
 def delete_directory(conn, data):
     dir_path = data[1]
@@ -97,14 +97,13 @@ def delete_directory(conn, data):
     os.rmdir(full_path)
     send_data = "1260"
 
-    conn.send(send_data.encode(FORMAT))
+    # conn.send(send_data.encode(FORMAT))
+    return send_data
 
 def copy_directory(conn, data):
     dir_path = data[1]
     des_path = data[2]
     dir_name = dir_path.rsplit('/', 1)[-1]
-
-    full_dir_path = os.path.join(SERVER_DATA_PATH, dir_path)
 
     full_des_path = os.path.join(SERVER_DATA_PATH, des_path)
     full_des_path = os.path.join(full_des_path, dir_name)
@@ -115,7 +114,8 @@ def copy_directory(conn, data):
     except FileExistsError:
         send_data = "2271"
 
-    conn.send(send_data.encode(FORMAT))
+    # conn.send(send_data.encode(FORMAT))
+    return send_data
 
 def move_directory(conn, data):
     dir_path = data[1]
@@ -134,7 +134,8 @@ def move_directory(conn, data):
     except FileExistsError:
         send_data = "2271"
 
-    conn.send(send_data.encode(FORMAT))
+    # conn.send(send_data.encode(FORMAT))
+    return send_data
 
 
 def show_my_teams(conn, data, cursor):
@@ -154,7 +155,8 @@ def show_my_teams(conn, data, cursor):
     else:
         send_data = "2011"
 
-    conn.send(send_data.encode(FORMAT))
+    # conn.send(send_data.encode(FORMAT))
+    return send_data
 
 def show_team_member(conn, data, cursor):
     team_name = data[1]
@@ -170,8 +172,69 @@ def show_team_member(conn, data, cursor):
     for account in result:
         send_data += "\n".join(account)
 
+    # conn.send(send_data.encode(FORMAT))
+    return send_data
+
+
+#################################################################### 
+####################################################################
+####################################################################
+
+def login(conn, data, cursor, addr):
+    username, password = data[1], data[2]
+
+    if username == "" or password == "":
+        send_data = "2011"
+    else:
+        with DB_CONNECTIONS_LOCK:
+            cursor.execute("SELECT password FROM Account WHERE account=?", (username,))
+            result = cursor.fetchone()
+
+        if result:
+            with ACTIVE_SESSIONS_LOCK:
+                session_key = f"{addr[0]}:{addr[1]}:{username}"
+                ACTIVE_SESSIONS[session_key] = {
+                    "account_id": username,
+                    "username": username,
+                }
+            send_data = "1030"
+        else:
+            send_data = "2032"
+
+    conn.send(send_data.encode(FORMAT))
+    if "username" in locals():
+        return ACTIVE_SESSIONS.get(f"{addr[0]}:{addr[1]}:{username}")
+    else:
+        return None
+
+
+def register(conn, data, cursor, dbconn):
+    username, password, name = data[1], data[2], data[3]
+    if username == "" or password == "" or name == "":
+        send_data = "2011"
+    # elif is_valid_password(password) is False:
+    #     send_data = "2012"
+    else:
+        with DB_CONNECTIONS_LOCK:
+            cursor.execute("SELECT account FROM Account WHERE account = ?", (username,))
+            result = cursor.fetchone()
+
+        if result:
+            send_data = "2013"
+        else:
+            send_data = "1010"
+            # hashed_password = bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt())
+            cursor.execute(
+                "INSERT INTO Account (account, password, name) VALUES (?, ?, ?)",
+                (username, password, name),
+            )
+            dbconn.commit()
+
     conn.send(send_data.encode(FORMAT))
 
+####################################################################
+####################################################################
+####################################################################
 
 def handle_client(conn, addr):
     with get_database_connection() as dbconn:
@@ -182,36 +245,61 @@ def handle_client(conn, addr):
 
     active_session = None
 
+
     while True:
-        data = conn.recv(SIZE).decode(FORMAT)
-        data = data.split("\n")
-        cmd = data[0]
+        request = conn.recv(SIZE).decode(FORMAT)
+        
+        commands = request.split('\r\n')
 
-        if active_session is not None:
-            account_id = active_session["account_id"]
-            username = active_session["username"]
-            if cmd == "UPLOAD":
-                upload_file(conn, data)
-            elif cmd == "MKDIR":
-                make_directory(conn, data)
-            elif cmd == "SHOW_MY_TEAMS":
-                show_my_teams(conn, data, cursor)
-            elif cmd == "GET_MEMBER":
-                show_team_member(conn, data, cursor)
-            elif cmd == "CREATE_FOLDER":
-                create_directory(conn, data)
-            elif cmd == "RENAME_FOLDER":
-                rename_directory(conn, data)
-            elif cmd == "DELETE_FOLDER":
-                delete_directory(conn, data)
-            elif cmd == "COPY_FOLDER":
-                copy_directory(conn, data)
-            elif cmd == "MOVE_FOLDER":
-                move_directory(conn, data)
-            else:
-                conn.send("4040".encode(FORMAT))
+        response = ""
 
-        elif len(cmd) == 0:
+        outWhile = 0
+
+        for command in commands:
+            data = command.split("\n")
+            cmd = data[0]
+
+            if cmd == "LOGIN":
+                active_session = login(conn, data, cursor, addr)
+            elif cmd == "LOGOUT":
+                active_session = None
+                break
+            elif cmd == "SIGNUP":
+                register(conn, data, cursor, dbconn)
+            elif active_session is not None:
+                account_id = active_session["account_id"]
+                username = active_session["username"]
+                if cmd == "UPLOAD":
+                    response += upload_file(conn, data)
+                elif cmd == "MKDIR":
+                    response += make_directory(conn, data)
+                elif cmd == "SHOW_MY_TEAMS":
+                    response += show_my_teams(conn, data, cursor)
+                elif cmd == "GET_MEMBER":
+                    response += show_team_member(conn, data, cursor)
+                elif cmd == "CREATE_FOLDER":
+                    response += create_directory(conn, data)
+                elif cmd == "RENAME_FOLDER":
+                    response +=rename_directory(conn, data)
+                elif cmd == "DELETE_FOLDER":
+                    response += delete_directory(conn, data)
+                elif cmd == "COPY_FOLDER":
+                    response += copy_directory(conn, data)
+                elif cmd == "MOVE_FOLDER":
+                    response += move_directory(conn, data)
+                else:
+                    response += "4040"
+
+            elif len(cmd) == 0:
+                outWhile = 1
+                break
+
+            response += "\r\n"
+
+        conn.send(response.encode(FORMAT))
+        print("Response: ", response)
+
+        if outWhile == 1:
             break
 
     print(f"[DISCONNECTED] {addr} disconnected")
