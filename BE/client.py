@@ -29,15 +29,15 @@ def display_main_menu():
     return choice
 
 def responseFromServer(client):
-    request = client.recv(SIZE).decode(FORMAT)
-    responses = request.split('\r\n')
+    requests = client.recv(SIZE).decode(FORMAT)
+    responses = [request for request in requests.split('\r\n') if request]
 
     for response in responses:
         print(response)
 
 
 def show_my_teams(client, username):
-    client.send(f"SHOW_MY_TEAMS\n{username}\r\nGET_MEMBER\nToan".encode(FORMAT))
+    client.send(f"SHOW_MY_TEAMS\n{username}\r\n".encode(FORMAT))
     # response = client.recv(SIZE).decode(FORMAT)
     # print(response)
 
@@ -93,28 +93,35 @@ def move_directory(client, dir_path, des_path):
 def login(client):
     username = input("Enter username: ")
     password = input("Enter password: ")
-    client.send(f"LOGIN\n{username}\n{password}".encode(FORMAT))
-    response = client.recv(SIZE).decode(FORMAT)
-    print(f"{response}")
+    client.send(f"LOGIN\n{username}\n{password}\r\n".encode(FORMAT))
 
-    if response.startswith("1030"):
-        print("Login successful!")
-        return {"username": username}
-    else:
-        print("Login failed. Please try again.")
-        return None
+    # response = client.recv(SIZE).decode(FORMAT)
+    # print(f"{response}")
+
+    requests = client.recv(SIZE).decode(FORMAT)
+    responses = [request for request in requests.split('\r\n') if request]
+
+    for response in responses:
+        print(response)
+
+        if response.startswith("1030"):
+            print("Login successful!")
+            return {"username": username}
+        else:
+            print("Login failed. Please try again.")
+            return None
     
 def signup(client):
     username = input("Enter username: ")
     password = input("Enter password: ")
     name = input("Enter your name: ")
-    client.send(f"SIGNUP\n{username}\n{password}\n{name}".encode(FORMAT))
-    response = client.recv(SIZE).decode(FORMAT)
-    print(f"{response}")
-    if response.startswith("1010"):
-        print("Signup successful!")
-    else:
-        print("Signup failed. Please try again.")
+    client.send(f"SIGNUP\n{username}\n{password}\n{name}\r\n".encode(FORMAT))
+    # response = client.recv(SIZE).decode(FORMAT)
+    # print(f"{response}")
+    # if response.startswith("1010"):
+    #     print("Signup successful!")
+    # else:
+    #     print("Signup failed. Please try again.")
 
 ####################################################################
 ####################################################################
@@ -180,7 +187,13 @@ def main():
             else:
                 print("Invalid choice. Please try again.")
 
-            responseFromServer(client)
+
+            client.settimeout(2.0)
+            try:
+                responseFromServer(client)
+            except socket.timeout:
+                print("Timeout occurred! Continue without receiving data.")
+            
 
     print("Disconnected from the server.")
     client.close()

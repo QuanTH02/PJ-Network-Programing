@@ -201,11 +201,13 @@ def login(conn, data, cursor, addr):
         else:
             send_data = "2032"
 
-    conn.send(send_data.encode(FORMAT))
+    conn.send(f"{send_data}\r\n".encode(FORMAT))
     if "username" in locals():
         return ACTIVE_SESSIONS.get(f"{addr[0]}:{addr[1]}:{username}")
     else:
         return None
+    
+    # return send_data
 
 
 def register(conn, data, cursor, dbconn):
@@ -230,7 +232,8 @@ def register(conn, data, cursor, dbconn):
             )
             dbconn.commit()
 
-    conn.send(send_data.encode(FORMAT))
+    conn.send("{send_data}\r\n".encode(FORMAT))
+    # return send_data
 
 ####################################################################
 ####################################################################
@@ -247,9 +250,9 @@ def handle_client(conn, addr):
 
 
     while True:
-        request = conn.recv(SIZE).decode(FORMAT)
-        
-        commands = request.split('\r\n')
+        requests = conn.recv(SIZE).decode(FORMAT)
+        commands = [request for request in requests.split('\r\n') if request]
+        print(commands)
 
         response = ""
 
@@ -290,11 +293,13 @@ def handle_client(conn, addr):
                 else:
                     response += "4040"
 
+                response += "\r\n"
+
             elif len(cmd) == 0:
                 outWhile = 1
                 break
 
-            response += "\r\n"
+            # response += "\r\n"
 
         conn.send(response.encode(FORMAT))
         print("Response: ", response)
