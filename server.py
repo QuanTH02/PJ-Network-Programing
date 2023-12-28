@@ -7,18 +7,22 @@ import random
 import string
 import bcrypt
 import shutil
+import sys
 
-IP = "0.0.0.0"
-PORT = 5000
-ADDR = (IP, PORT)
-SIZE = 1024
-FORMAT = "utf-8"
-SERVER_DATA_PATH = "server_data"
+from const import IP, SIZE, FORMAT, SERVER_DATA_PATH
 
 DB_CONNECTIONS = {}
 DB_CONNECTIONS_LOCK = threading.Lock()
 ACTIVE_SESSIONS = {}
 ACTIVE_SESSIONS_LOCK = threading.Lock()
+
+
+def write_log(addr, request, response, cursor, dbconn):
+    cursor.execute(
+        "Insert into log(time, client_address,request,response) values(datetime('now'),?,?,?)",
+        (addr, request, response),
+    )
+    dbconn.commit()
 
 
 def random_team_code(cursor):
@@ -45,10 +49,8 @@ def get_database_connection():
             DB_CONNECTIONS[thread_id] = sqlite3.connect("file_share.db")
         else:
             try:
-                # Try a simple query to check if the connection is still alive
                 DB_CONNECTIONS[thread_id].execute("SELECT 1").fetchone()
             except sqlite3.ProgrammingError:
-                # Reconnect if the connection is closed
                 DB_CONNECTIONS[thread_id] = sqlite3.connect("file_share.db")
         return DB_CONNECTIONS[thread_id]
 
@@ -73,10 +75,9 @@ def rename_file(conn, data, cursor, dbconn):
     new_file_name = data[2]
     file_name = file_path.split("/")[-1]
     file_directory = "/".join(file_path.split("/")[:-1])
-    full_new_path = f"{file_directory}/{new_file_name}"
 
     if not new_file_name:
-        send_data = "2202"  # Invalid new file name
+        send_data = "2202"
     elif "/" in new_file_name or "\\" in new_file_name:
         send_data = "2202"
     elif new_file_name.endswith("."):
@@ -179,6 +180,36 @@ def create_team(conn, data, cursor, dbconn):
     conn.send(send_data.encode(FORMAT))
 
 
+def join_team(conn, data, cursor, dbconn):
+    code = data[1]
+    account = data[2]
+    if code == None or account == None:
+        send_data = "2011"
+    else:
+        cursor.execute(
+            "SELECT team_code, team_name FROM team WHERE team_code = ?", (code,)
+        )
+        result = cursor.fetchone()
+
+        if result[0] is None:
+            send_data = "2061"
+        else:
+            team_name = result[1]
+            cursor.execute(
+                "SELECT account from team_member where team_name = ?", (team_name,)
+            )
+            team_account = cursor.fetchall()
+            if account in team_account:
+                send_data = "2062"
+            else:
+                send_data = "1060"
+                cursor.execute(
+                    "Insert into team_member values (?,?)", (account, team_name)
+                )
+                dbconn.commit()
+    conn.send(send_data.encode(FORMAT))
+
+
 def handle_client(conn, addr):
     with get_database_connection() as dbconn:
         cursor = dbconn.cursor()
@@ -187,15 +218,26 @@ def handle_client(conn, addr):
     conn.send("OK\nWelcome to the File Server.".encode(FORMAT))
 
     while True:
-        data = conn.recv(SIZE).decode(FORMAT)
+        data = conn.recv(SIZE)
         if len(data) == 0:
             break
+        data.decode(FORMAT)
         data = data.split("\n")
         cmd = data[0]
-        if cmd == "DELETE":
+        if cmd == "DELETE_FILE":
             delete_file(conn, data, cursor, dbconn)
         elif cmd == "CREATE_TEAM":
             create_team(conn, data, cursor, dbconn)
+        elif cmd == "MOVE_FILE":
+            move_file(conn, data, cursor, dbconn)
+        elif cmd == "COPY_FILE":
+            copy_file(conn, data, cursor, dbconn)
+        elif cmd == "RENAME_FILE":
+            rename_file(conn, data, cursor, dbconn)
+
+        elif cmd == "JOIN_TEAM":
+            join_team(conn, data, cursor, dbconn)
+
         else:
             conn.send("3000".encode(FORMAT))
 
@@ -205,6 +247,12 @@ def handle_client(conn, addr):
 
 
 def main():
+    if len(sys.argv) != 2:
+        print("Usage: python server.py <port>")
+        return
+
+    PORT = sys.argv[1]
+    ADDR = (IP, PORT)
     print("[STARTING] Server is starting")
     server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server.bind(ADDR)

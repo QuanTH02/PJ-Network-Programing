@@ -1,11 +1,8 @@
 import socket
 import os
+import sys
 
-IP = socket.gethostbyname(socket.gethostname())
-PORT = 5000
-ADDR = (IP, PORT)
-FORMAT = "utf-8"
-SIZE = 1024
+from const import FORMAT, SIZE
 
 
 def delete_file(client, file_path):
@@ -21,6 +18,12 @@ def create_team(client, team_name, username):
 
 
 def main():
+    if len(sys.argv) != 2:
+        print("Usage: python server.py <port>")
+        return
+    IP = socket.gethostbyname(socket.gethostname())
+    PORT = sys.argv[1]
+    ADDR = (IP, PORT)
     client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     client.connect(ADDR)
     data = client.recv(SIZE).decode(FORMAT)
