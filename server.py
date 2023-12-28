@@ -204,9 +204,46 @@ def join_team(conn, data, cursor, dbconn):
             else:
                 send_data = "1060"
                 cursor.execute(
-                    "Insert into team_member values (?,?)", (account, team_name)
+                    "Insert into join_request (sender, team_name) values (?,?)",
+                    (account, team_name),
                 )
                 dbconn.commit()
+    conn.send(send_data.encode(FORMAT))
+
+
+def get_request(conn, data, cursor):
+    team_name = data[1]
+    cursor.execute("SELECT sender from join_request where team_name = ?", (team_name,))
+    results = cursor.fetchall()
+    send_data = "1070"
+    for result in results:
+        send_data = send_data + "\n" + result[0]
+    conn.send(send_data.encode(FORMAT))
+
+
+def accept_request(conn, data, cursor, dbconn):
+    team_name = data[1]
+    account = data[2]
+    send_data = "1080"
+    cursor.execute("Insert into team_member values (?,?)", (account, team_name))
+    dbconn.commit()
+    cursor.execute(
+        "Delete from join_request where team_name = ? and sender = ?",
+        (team_name, account),
+    )
+    dbconn.commit()
+    conn.send(send_data.encode(FORMAT))
+
+
+def decline_request(conn, data, cursor, dbconn):
+    team_name = data[1]
+    account = data[2]
+    send_data = "1090"
+    cursor.execute(
+        "Delete from join_request where team_name = ? and sender = ?",
+        (team_name, account),
+    )
+    dbconn.commit()
     conn.send(send_data.encode(FORMAT))
 
 
@@ -237,6 +274,13 @@ def handle_client(conn, addr):
 
         elif cmd == "JOIN_TEAM":
             join_team(conn, data, cursor, dbconn)
+
+        elif cmd == "GET_REQUEST":
+            get_request(conn, data, cursor)
+        elif cmd == "ACCEPT_REQUEST":
+            accept_request(conn, data, cursor, dbconn)
+        elif cmd == "DECLINE_REQUEST":
+            decline_request(conn, data, cursor, dbconn)
 
         else:
             conn.send("3000".encode(FORMAT))
