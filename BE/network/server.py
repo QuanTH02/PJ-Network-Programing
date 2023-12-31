@@ -36,15 +36,36 @@ def close_connection(dbconn):
 
 
 def upload_file(conn, data):
-    name, text = data[1], data[2]
-    filepath = os.path.join(SERVER_DATA_PATH, name)
-    with open(filepath, "w") as f:
-        f.write(text)
+    name, des_path = data[1], data[2]
+    des_path += name.rsplit('/', 1)[0]
+    filepath = os.path.join(SERVER_DATA_PATH, des_path)
+
+    with open(filepath, "wb") as f:
+        # f.write(text)
+        while True:
+            chunk = conn.recv(SIZE)
+            if not chunk:
+                break
+            f.write(chunk)
+        
 
     send_data = "1180"
     # conn.send(send_data.encode(FORMAT))
     return send_data
 
+
+def download_file(conn, data):
+    path = data[1]
+    with open(path, "rb") as f:
+        while True:
+            chunk = f.read(SIZE)     
+            if not chunk:
+                break
+            conn.send(chunk)
+
+
+    send_data = "1190\n"
+    return send_data
 
 def make_directory(conn, data):
     dir_path = data[1]
@@ -251,12 +272,11 @@ def handle_client(conn, addr):
 
     while True:
         requests = conn.recv(SIZE).decode(FORMAT)
+
+        if requests == "\r\n":
+            break
         commands = [request for request in requests.split('\r\n') if request]
         print(commands)
-
-        response = ""
-
-        outWhile = 0
 
         for command in commands:
             data = command.split("\n")
@@ -273,39 +293,33 @@ def handle_client(conn, addr):
                 account_id = active_session["account_id"]
                 username = active_session["username"]
                 if cmd == "UPLOAD":
-                    response += upload_file(conn, data)
+                    response = upload_file(conn, data)
                 elif cmd == "MKDIR":
-                    response += make_directory(conn, data)
+                    response = make_directory(conn, data)
                 elif cmd == "SHOW_MY_TEAMS":
-                    response += show_my_teams(conn, data, cursor)
+                    response = show_my_teams(conn, data, cursor)
                 elif cmd == "GET_MEMBER":
-                    response += show_team_member(conn, data, cursor)
+                    response = show_team_member(conn, data, cursor)
                 elif cmd == "CREATE_FOLDER":
-                    response += create_directory(conn, data)
+                    response = create_directory(conn, data)
                 elif cmd == "RENAME_FOLDER":
-                    response +=rename_directory(conn, data)
+                    response = rename_directory(conn, data)
                 elif cmd == "DELETE_FOLDER":
-                    response += delete_directory(conn, data)
+                    response = delete_directory(conn, data)
                 elif cmd == "COPY_FOLDER":
-                    response += copy_directory(conn, data)
+                    response = copy_directory(conn, data)
                 elif cmd == "MOVE_FOLDER":
-                    response += move_directory(conn, data)
+                    response = move_directory(conn, data)
                 else:
-                    response += "4040"
+                    response = "4040"
 
                 response += "\r\n"
 
             elif len(cmd) == 0:
-                outWhile = 1
                 break
-
-            # response += "\r\n"
 
         conn.send(response.encode(FORMAT))
         print("Response: ", response)
-
-        if outWhile == 1:
-            break
 
     print(f"[DISCONNECTED] {addr} disconnected")
     conn.close()

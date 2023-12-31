@@ -33,6 +33,44 @@ def responseFromServer(client):
     responses = [request for request in requests.split('\r\n') if request]
 
     for response in responses:
+        # Đăng ký và quản lý tài khoản
+        if response.startswith("1010"):
+            print("Đăng ký thành công")
+        if response.startswith("2011"):
+            print("Chưa nhập đủ các trường thông tin")
+        if response.startswith("2012"):
+            print("Trường thông tin nhập chưa đúng định dạng")
+        if response.startswith("2013"):
+            print("Tài khoản đã tồn tại")
+        if response.startswith("1020"):
+            print("Đổi mật khẩu thành công")
+        if response.startswith("2021"):
+            print("2 mật khẩu trùng nhau")
+        if response.startswith("2022"):
+            print("Mật khẩu mới nhập lại không trùng khớp")
+        if response.startswith("2023"):
+            print("Mật khẩu mới không đúng định dạng")
+        if response.startswith("2024"):
+            print("Nhập mật khẩu cũ sai")
+
+        
+        # if response.startswith(""):
+        #     print("")
+        # if response.startswith(""):
+        #     print("")
+        # if response.startswith(""):
+        #     print("")
+
+
+        if response.startswith("1260"):
+            print("Show my teams successfully")
+        if response.startswith("1100"):
+            print("Show team member successfully")
+        if response.startswith("1180"):
+            print("Upload file successfully")
+
+
+
         print(response)
 
 
@@ -41,14 +79,32 @@ def show_my_teams(client, username):
     # response = client.recv(SIZE).decode(FORMAT)
     # print(response)
 
-def upload_file(client, path):
-    with open(path, "r") as f:
-        text = f.read()
-
+def upload_file(client, path, des_path):
     filename = os.path.basename(path)
-    client.send(f"UPLOAD\n{filename}\n{text}".encode(FORMAT))
+    client.send(f"UPLOAD\n{filename}\n{des_path}\r\n".encode(FORMAT))
+
+    with open(path, "rb") as f:
+        # text = f.read()
+        while True:
+            chunk = f.read(SIZE)
+            if not chunk:
+                break
+            client.send(chunk)
+
     # response = client.recv(SIZE).decode(FORMAT)
     # print(response)
+
+def download_file(client, path):
+    filename = os.path.basename(path)
+    client.send(f"DOWNLOAD\n{filename}\r\n".encode(FORMAT))
+
+    with open(filename.rsplit('/', 1)[0], "wb") as f:
+        while True:
+            chunk = client.recv(SIZE)
+            if not chunk:
+                break
+            f.write(chunk)
+
 
 def make_directory(client, dir_name):
     client.send(f"MKDIR\n{dir_name}".encode(FORMAT))
@@ -155,7 +211,8 @@ def main():
                 show_my_teams(client, active_session["username"])
             elif choice == "2":
                 path = input("Enter file path: ")
-                upload_file(client, path)
+                des_path = input("Enter file destination path: ")
+                upload_file(client, path, des_path)
             elif choice == "3":
                 dir_name = input("Enter directory name: ")
                 make_directory(client, dir_name)
@@ -187,12 +244,10 @@ def main():
             else:
                 print("Invalid choice. Please try again.")
 
+            # client.settimeout(2.0)
 
-            client.settimeout(2.0)
-            try:
-                responseFromServer(client)
-            except socket.timeout:
-                print("Timeout occurred! Continue without receiving data.")
+            responseFromServer(client)
+
             
 
     print("Disconnected from the server.")

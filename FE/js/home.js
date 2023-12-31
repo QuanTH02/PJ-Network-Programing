@@ -214,7 +214,4 @@ $(document).ready(function () {
         });
     });
 
-
-
-
 });
