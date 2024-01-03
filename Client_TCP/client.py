@@ -1,11 +1,19 @@
 import socket
 import os
+import subprocess
 
 IP = socket.gethostbyname(socket.gethostname())
 PORT = 5000
 ADDR = (IP, PORT)
 FORMAT = "utf-8"
 SIZE = 1024
+
+def open_page(name_page):
+    if name_page == "login":
+        subprocess.run(["start", "http://localhost:8000/login.php"], shell=True)
+    if name_page == "home":
+        subprocess.run(["start", "http://localhost:8000/home.php"], shell=True)
+
 
 def display_login_menu():
     print("1. Login")
@@ -78,6 +86,7 @@ def show_my_teams(client, username):
     client.send(f"SHOW_MY_TEAMS\n{username}\r\n".encode(FORMAT))
     # response = client.recv(SIZE).decode(FORMAT)
     # print(response)
+    responseFromServer(client)
 
 def upload_file(client, path, des_path):
     filename = os.path.basename(path)
@@ -187,16 +196,18 @@ def main():
     client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     client.connect(ADDR)
     data = client.recv(SIZE).decode(FORMAT)
+    
     print(f"{data}")
 
     active_session = None
-
+    open_page("login")
     while True:
         if active_session is None:
             choice = display_login_menu()
 
             if choice == "1":
                 active_session = login(client)
+                
             elif choice == "2":
                 signup(client)
             elif choice == "3":

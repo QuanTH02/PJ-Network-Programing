@@ -17,7 +17,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.1/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <!-- <script src="js/home.js"></script> -->
-    <script src="js/api/api.js"></script>
+    <script src="config.js"></script>
     <style>
         /* Add your custom styles here */
 
@@ -112,10 +112,64 @@
 
 
 
-    <script>
+    <script text="text/javascript">
         document.querySelector('.img__btn').addEventListener('click', function () {
             document.querySelector('.cont').classList.toggle('s--signup');
         });
+
+        // Login
+        document.addEventListener("DOMContentLoaded", function () {
+            const signInButton = document.querySelector(".submit-account-password");
+            signInButton.addEventListener("click", function () {
+                const account = document.querySelector(".input-enter-account").value;
+                const password = document.querySelector(".input-enter-password").value;
+
+                fetch(BASE_URL + "api/login", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ account: account, password: password })
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.token) {
+                            // Lưu token vào Local Storage (hoặc nơi lưu trữ khác mà bạn chọn)
+                            localStorage.setItem('token', data.token);
+
+                            // Thêm token vào tiêu đề Authorization cho các yêu cầu sau này
+                            const token = data.token;
+                            fetch(BASE_URL + "other_endpoint", {
+                                headers: {
+                                    "Content-Type": "application/json",
+                                    "Authorization": `Bearer ${token}`
+                                }
+                            })
+                                .then(response => response.json())
+                                .then(data => {
+                                    // Xử lý dữ liệu phản hồi từ other_endpoint ở đây
+                                })
+                                .catch(error => {
+                                    console.error("Error:", error);
+                                });
+
+                            // Chuyển hướng đến trang home.html
+                            window.location.href = "home.html";
+                        } else if (data.message === "Login successful") {
+                            // Chuyển hướng đến trang home.html nếu bạn vẫn giữ mã thông báo "Login successful" (dù điều này không được khuyến nghị)
+                            window.location.href = "home.html";
+                        } else {
+                            // Hiển thị thông báo lỗi
+                            alert(data.error || "Unexpected error occurred.");
+                        }
+                    })
+                    .catch(error => {
+                        console.error("Error:", error);
+                        alert("An error occurred while logging in.");
+                    });
+            });
+        });
+
     </script>
 </body>
 

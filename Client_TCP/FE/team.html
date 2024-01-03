@@ -31,14 +31,18 @@
 <body>
     <div class="sidebar">
         <div class="row mr-0">
-            <div class="col-2 col-sidebar pl-4" style="height: 100vh; ">
-                <?php include "sidebar.php"; ?>
+            <div class="col-2 col-sidebar pl-4 includedContent" style="height: 100vh;">
+                <script>
+                    $(function () {
+                        $(".includedContent").load("sidebar.html");
+                    });
+                </script>
             </div>
 
             <div class="col-10">
                 <div class="header ml-5 mb-4">
                     <div style="display: flex; flex-direction: column;">
-                        <a href="home.php" class="back-to-home">
+                        <a href="home.html" class="back-to-home">
                             <i class="fa-solid fa-angle-left" style="display: inline; margin-right: 10px;"></i>
                             <h5 style="display: inline;">Back</h5>
                         </a>
@@ -125,34 +129,91 @@
                         </tr>
 
                         <!-- Content -->
-                        <?php
-                        $userData = json_decode($_GET['data'], true);
-                        ?>
 
-                            <!-- Các tiêu đề của bảng -->
-                            <!-- ... -->
-                            <!-- Các dòng trong bảng sẽ được thêm vào đây -->
-                            <?php foreach ($userData as $user): ?>
-                                <tr class="tr-folder-list">
-                                    <td class="table-img-folder"><i class="fa-regular fa-file"></i></td>
-                                    <td class="table-name-folder">
-                                        Main folder
-                                    </td>
-                                    <td class="table-copy-move-download">
-                                        <button class="folder-copy"><i class="fa-regular fa-copy"></i></button>
-                                        <button class="folder-download"><i class="fa-solid fa-download"></i></button>
-                                        <button class="folder-move"><img src="img/move-folder.svg" alt=""></button>
-                                    </td>
-                                    <td class="table-modified">Oct 10, 2023</td>
-                                    <td class="table-modified-by">
-                                        <?= $user['account'] ?>
-                                    </td>
-                                    <td class="table-edit"><button class="icon-edit"><i
-                                                class="fa-regular fa-pen-to-square"></i></button></td>
-                                    <td class="table-remove"><button class="icon-remove"><i class="fa fa-trash-o"
-                                                style="font-size:16px;"></i></button></td>
-                                </tr>
-                            <?php endforeach; ?>
+                        <!-- Các tiêu đề của bảng -->
+                        <!-- ... -->
+                        <!-- Các dòng trong bảng sẽ được thêm vào đây -->
+
+                        <tr class="tr-folder-list">
+                            <td class="table-img-folder"><i class="fa-regular fa-file"></i></td>
+                            <td class="table-name-folder">
+                                Main folder
+                            </td>
+                            <td class="table-copy-move-download">
+                                <button class="folder-copy"><i class="fa-regular fa-copy"></i></button>
+                                <button class="folder-download"><i class="fa-solid fa-download"></i></button>
+                                <button class="folder-move"><img src="img/move-folder.svg" alt=""></button>
+                            </td>
+                            <td class="table-modified">Oct 10, 2023</td>
+                            <td class="table-modified-by">
+                                Quan
+                            </td>
+                            <td class="table-edit"><button class="icon-edit"><i
+                                        class="fa-regular fa-pen-to-square"></i></button></td>
+                            <td class="table-remove"><button class="icon-remove"><i class="fa fa-trash-o"
+                                        style="font-size:16px;"></i></button></td>
+                        </tr>
+
+                        <tr class="tr-folder-list">
+                            <td class="table-img-folder"><i class="fa-regular fa-file"></i></td>
+                            <td class="table-name-folder">
+                                Main folder
+                            </td>
+                            <td class="table-copy-move-download">
+                                <button class="folder-copy"><i class="fa-regular fa-copy"></i></button>
+                                <button class="folder-download"><i class="fa-solid fa-download"></i></button>
+                                <button class="folder-move"><img src="img/move-folder.svg" alt=""></button>
+                            </td>
+                            <td class="table-modified">Oct 10, 2023</td>
+                            <td class="table-modified-by">
+                                Quan
+                            </td>
+                            <td class="table-edit"><button class="icon-edit"><i
+                                        class="fa-regular fa-pen-to-square"></i></button></td>
+                            <td class="table-remove"><button class="icon-remove"><i class="fa fa-trash-o"
+                                        style="font-size:16px;"></i></button></td>
+                        </tr>
+
+                        <tr class="tr-folder-list">
+                            <td class="table-img-folder"><i class="fa-regular fa-file"></i></td>
+                            <td class="table-name-folder">
+                                Main folder
+                            </td>
+                            <td class="table-copy-move-download">
+                                <button class="folder-copy"><i class="fa-regular fa-copy"></i></button>
+                                <button class="folder-download"><i class="fa-solid fa-download"></i></button>
+                                <button class="folder-move"><img src="img/move-folder.svg" alt=""></button>
+                            </td>
+                            <td class="table-modified">Oct 10, 2023</td>
+                            <td class="table-modified-by">
+                                Quan
+                            </td>
+                            <td class="table-edit"><button class="icon-edit"><i
+                                        class="fa-regular fa-pen-to-square"></i></button></td>
+                            <td class="table-remove"><button class="icon-remove"><i class="fa fa-trash-o"
+                                        style="font-size:16px;"></i></button></td>
+                        </tr>
+
+                        <tr class="tr-folder-list">
+                            <td class="table-img-folder"><i class="fa-regular fa-file"></i></td>
+                            <td class="table-name-folder">
+                                Main folder
+                            </td>
+                            <td class="table-copy-move-download">
+                                <button class="folder-copy"><i class="fa-regular fa-copy"></i></button>
+                                <button class="folder-download"><i class="fa-solid fa-download"></i></button>
+                                <button class="folder-move"><img src="img/move-folder.svg" alt=""></button>
+                            </td>
+                            <td class="table-modified">Oct 10, 2023</td>
+                            <td class="table-modified-by">
+                                Quan
+                            </td>
+                            <td class="table-edit"><button class="icon-edit"><i
+                                        class="fa-regular fa-pen-to-square"></i></button></td>
+                            <td class="table-remove"><button class="icon-remove"><i class="fa fa-trash-o"
+                                        style="font-size:16px;"></i></button></td>
+                        </tr>
+
 
 
 
