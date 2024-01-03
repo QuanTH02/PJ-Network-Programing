@@ -1,19 +1,16 @@
 import socket
 import os
-import subprocess
+from flask import Flask, jsonify, redirect, render_template, request, url_for
+
+app = Flask(__name__)
+
+
 
 IP = socket.gethostbyname(socket.gethostname())
 PORT = 5000
 ADDR = (IP, PORT)
 FORMAT = "utf-8"
 SIZE = 1024
-
-def open_page(name_page):
-    if name_page == "login":
-        subprocess.run(["start", "http://localhost:8000/login.php"], shell=True)
-    if name_page == "home":
-        subprocess.run(["start", "http://localhost:8000/home.php"], shell=True)
-
 
 def display_login_menu():
     print("1. Login")
@@ -191,6 +188,29 @@ def signup(client):
 ####################################################################
 ####################################################################
 ####################################################################
+    
+@app.route('/')
+def login_page():
+    return render_template('login.html')
+
+@app.route('/home/account=<account>')
+def home_page(account):
+    return render_template('home.html', account=account)
+
+@app.route('/team/<team_name>/<account_name>')
+def team_page(account, team_name):
+    return render_template('team.html', team_name=team_name, account=account)
+
+@app.route('/check-login', methods=['POST'])
+def checkLogin():
+    data = request.json
+    account = data.get('account')
+    password = data.get('password')
+
+    if account == "nam123" and password == "Test1234":
+        return jsonify({"message": "1030"})
+    else:
+        return jsonify({"message": "Invalid credentials"})
         
 def main():
     client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -200,7 +220,6 @@ def main():
     print(f"{data}")
 
     active_session = None
-    open_page("login")
     while True:
         if active_session is None:
             choice = display_login_menu()
@@ -266,4 +285,5 @@ def main():
 
 
 if __name__ == "__main__":
+    app.run(debug=True)
     main()

@@ -9,7 +9,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-    <link rel="stylesheet" href="templates/login.css">
+    <link rel="stylesheet" href="../static/login.css">
 
 
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
@@ -17,7 +17,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.1/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <!-- <script src="js/home.js"></script> -->
-    <script src="config.js"></script>
+    <script src="../static/config.js"></script>
     <style>
         /* Add your custom styles here */
 
@@ -118,57 +118,48 @@
         });
 
         // Login
-        document.addEventListener("DOMContentLoaded", function () {
-            const signInButton = document.querySelector(".submit-account-password");
-            signInButton.addEventListener("click", function () {
-                const account = document.querySelector(".input-enter-account").value;
-                const password = document.querySelector(".input-enter-password").value;
+        document.addEventListener('DOMContentLoaded', function () {
+            const submitBtns = document.getElementsByClassName("submit-account-password");
 
-                fetch(BASE_URL + "api/login", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify({ account: account, password: password })
-                })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.token) {
-                            // Lưu token vào Local Storage (hoặc nơi lưu trữ khác mà bạn chọn)
-                            localStorage.setItem('token', data.token);
+            for (let btn of submitBtns) {
+                btn.addEventListener('click', function (e) {
+                    e.preventDefault();
 
-                            // Thêm token vào tiêu đề Authorization cho các yêu cầu sau này
-                            const token = data.token;
-                            fetch(BASE_URL + "other_endpoint", {
-                                headers: {
-                                    "Content-Type": "application/json",
-                                    "Authorization": `Bearer ${token}`
-                                }
-                            })
-                                .then(response => response.json())
-                                .then(data => {
-                                    // Xử lý dữ liệu phản hồi từ other_endpoint ở đây
-                                })
-                                .catch(error => {
-                                    console.error("Error:", error);
-                                });
+                    const account = document.querySelector('.input-enter-account').value;
+                    const password = document.querySelector('.input-enter-password').value;
 
-                            // Chuyển hướng đến trang home.html
-                            window.location.href = "home.html";
-                        } else if (data.message === "Login successful") {
-                            // Chuyển hướng đến trang home.html nếu bạn vẫn giữ mã thông báo "Login successful" (dù điều này không được khuyến nghị)
-                            window.location.href = "home.html";
-                        } else {
-                            // Hiển thị thông báo lỗi
-                            alert(data.error || "Unexpected error occurred.");
-                        }
+                    // Gửi dữ liệu tài khoản và mật khẩu đến server bằng AJAX
+                    fetch('/check-login', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ account: account, password: password }),
                     })
-                    .catch(error => {
-                        console.error("Error:", error);
-                        alert("An error occurred while logging in.");
-                    });
-            });
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error('Network response was not ok');
+                            }
+                            return response.json();
+                        })
+                        .then(data => {
+                            console.log(data.message);
+                            if (data.message === "1030") {
+                                // Chuyển hướng người dùng đến trang home.html
+                                window.location.href = `/home/account=${account}`;
+                            } else {
+                                console.log("Wrong")
+                            }
+                            // Xử lý phản hồi từ server nếu cần
+                        })
+                        .catch((error) => {
+                            console.error('Error:', error);
+                        });
+                });
+            }
         });
+
+
 
     </script>
 </body>

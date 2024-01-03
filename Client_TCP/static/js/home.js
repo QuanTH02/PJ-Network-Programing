@@ -1,8 +1,14 @@
 $(document).ready(function () {
+    
     // Popup Join Team
-    document.getElementById("openPopupJoinTeamBtn").addEventListener("click", function () {
-        document.getElementById("joinTeamPopup").style.display = "block";
-    });
+    let openPopupJoinTeamBtn = document.getElementById("openPopupJoinTeamBtn");
+    let joinTeamPopup = document.getElementById("joinTeamPopup");
+
+    if (openPopupJoinTeamBtn && joinTeamPopup) {
+        openPopupJoinTeamBtn.addEventListener("click", function () {
+            joinTeamPopup.style.display = "block";
+        });
+    }
 
     document.getElementById("joinTeamPopup").addEventListener("click", function (event) {
         if (event.target === this) {
