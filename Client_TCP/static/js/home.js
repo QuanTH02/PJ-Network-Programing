@@ -1,5 +1,4 @@
 $(document).ready(function () {
-    
     // Popup Join Team
     let openPopupJoinTeamBtn = document.getElementById("openPopupJoinTeamBtn");
     let joinTeamPopup = document.getElementById("joinTeamPopup");
@@ -10,77 +9,110 @@ $(document).ready(function () {
         });
     }
 
-    document.getElementById("joinTeamPopup").addEventListener("click", function (event) {
-        if (event.target === this) {
-            this.style.display = "none";
-        }
-    });
+    if (joinTeamPopup) {
+        joinTeamPopup.addEventListener("click", function (event) {
+            if (event.target === this) {
+                this.style.display = "none";
+            }
+        });
+    }
 
     // Popup Create Team
-    document.getElementById("openPopupcreateTeamBtn").addEventListener("click", function () {
-        document.getElementById("createTeamPopup").style.display = "block";
-    });
+    let openPopupCreateTeamBtn = document.getElementById("openPopupcreateTeamBtn");
+    let createTeamPopup = document.getElementById("createTeamPopup");
 
-    document.getElementById("createTeamPopup").addEventListener("click", function (event) {
-        if (event.target === this) {
-            this.style.display = "none";
-        }
-    });
+    if (openPopupCreateTeamBtn && createTeamPopup) {
+        openPopupCreateTeamBtn.addEventListener("click", function () {
+            createTeamPopup.style.display = "block";
+        });
+    }
+
+    if (createTeamPopup) {
+        createTeamPopup.addEventListener("click", function (event) {
+            if (event.target === this) {
+                this.style.display = "none";
+            }
+        });
+    }
+
 
     // Popup Add Member
-    document.querySelector('.skip-btn').addEventListener("click", function () {
-        document.getElementById("addMemberPopup").style.display = "none";
-    });
+    let skipBtn = document.querySelector('.skip-btn');
+    let addMemberPopup = document.getElementById("addMemberPopup");
+
+    if (skipBtn && addMemberPopup) {
+        skipBtn.addEventListener("click", function () {
+            addMemberPopup.style.display = "none";
+        });
+    }
+
 
 
     // Popup Join team
-    document.querySelector('.code-team-inp').addEventListener('input', function () {
-        var inputValue = this.value.trim(); // Trim để loại bỏ các khoảng trắng
+    let codeTeamInput = document.querySelector('.code-team-inp');
+    let joinTeamBtn = document.querySelector('.join-team-btn');
 
-        var joinTeamBtn = document.querySelector('.join-team-btn');
-        if (inputValue === "") {
-            joinTeamBtn.style.backgroundColor = "#4D4D4D";
-        } else {
-            joinTeamBtn.style.backgroundColor = "var(--color-bg-sidebar-li)";
-        }
-    });
+    if (codeTeamInput) {
+        codeTeamInput.addEventListener('input', function () {
+            let inputValue = this.value.trim();
 
-    document.querySelector('.join-team-btn').addEventListener('click', function () {
-        var codeTeam = document.querySelector('.code-team-inp');
-        var inputValue = codeTeam.value;
-        if (inputValue == "123456") {
-            console.log("Successfully entered");
-            document.querySelector('#p-message-code-team').style.display = "none";
-        } else {
-            document.querySelector('#p-message-code-team').style.display = "block";
-        }
-    });
+            if (inputValue === "") {
+                joinTeamBtn.style.backgroundColor = "#4D4D4D";
+            } else {
+                joinTeamBtn.style.backgroundColor = "var(--color-bg-sidebar-li)";
+            }
+        });
+    }
+
+
+    let messageCodeTeam = document.querySelector('#p-message-code-team');
+
+    if (joinTeamBtn) {
+        joinTeamBtn.addEventListener('click', function () {
+            let inputValue = codeTeamInput.value.trim();  // Loại bỏ các khoảng trắng từ đầu và cuối chuỗi
+
+            if (inputValue === "123456") {
+                console.log("Successfully entered");
+                messageCodeTeam.style.display = "none";
+            } else {
+                messageCodeTeam.style.display = "block";
+            }
+        });
+    }
 
     // Popup Create team
-    document.querySelector('.create-team-inp').addEventListener('input', function () {
-        var inputValue = this.value.trim(); // Trim để loại bỏ các khoảng trắng
+    let createTeamInput = document.querySelector('.create-team-inp');
+    let createTeamBtn = document.querySelector('.create-team-btn');
 
-        var nextBtn = document.querySelector('.create-team-btn');
-        if (inputValue === "") {
-            nextBtn.style.backgroundColor = "#4D4D4D";
-        } else {
-            nextBtn.style.backgroundColor = "var(--color-bg-sidebar-li)";
-        }
-    });
+    if (createTeamBtn) {
+        createTeamInput.addEventListener('input', function () {
+            let inputValue = this.value.trim();  // Loại bỏ các khoảng trắng từ đầu và cuối chuỗi
 
-    document.querySelector('.create-team-btn').addEventListener('click', function () {
-        var teamName = document.querySelector('.create-team-inp');
-        var inputValue = teamName.value;
-        if (inputValue == "123456") {
-            console.log("Successfully entered");
-            document.querySelector('#p-message-create-team').style.display = "none";
-            document.getElementById("createTeamPopup").style.display = "none";
-            document.getElementById("addMemberPopup").style.display = "block";
+            if (inputValue === "") {
+                createTeamBtn.style.backgroundColor = "#4D4D4D";
+            } else {
+                createTeamBtn.style.backgroundColor = "var(--color-bg-sidebar-li)";
+            }
+        });
+    }
 
-        } else {
-            document.querySelector('#p-message-create-team').style.display = "block";
-        }
-    });
+    let teamNameInput = document.querySelector('.create-team-inp');
+    let messageCreateTeam = document.querySelector('#p-message-create-team');
+
+    if (createTeamBtn) {
+        createTeamBtn.addEventListener('click', function () {
+            let inputValue = teamNameInput.value.trim();  // Loại bỏ các khoảng trắng từ đầu và cuối chuỗi
+    
+            if (inputValue === "123456") {
+                console.log("Successfully entered");
+                messageCreateTeam.style.display = "none";
+                createTeamPopup.style.display = "none";
+                addMemberPopup.style.display = "block";
+            } else {
+                messageCreateTeam.style.display = "block";
+            }
+        });
+    }
 
     // Filter input
     document.querySelector('.search-box input').addEventListener('keyup', filterTeams);

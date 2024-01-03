@@ -232,6 +232,7 @@ a {
 .team:hover {
     background-color: #343442;
     text-decoration: none;
+    cursor: pointer;
 }
 
 .team-element .img-div {
@@ -372,6 +373,7 @@ a {
 .back-to-home:hover {
     color: rgb(120, 67, 178);
     text-decoration: none;
+    cursor: pointer;
 }
 
 #create-team-des {

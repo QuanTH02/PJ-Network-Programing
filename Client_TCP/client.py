@@ -5,7 +5,6 @@ from flask import Flask, jsonify, redirect, render_template, request, url_for
 app = Flask(__name__)
 
 
-
 IP = socket.gethostbyname(socket.gethostname())
 PORT = 5000
 ADDR = (IP, PORT)
@@ -188,18 +187,25 @@ def signup(client):
 ####################################################################
 ####################################################################
 ####################################################################
-    
-@app.route('/')
+
+
+@app.route('/login')
 def login_page():
     return render_template('login.html')
 
 @app.route('/home/account=<account>')
 def home_page(account):
-    return render_template('home.html', account=account)
+    list_team = ['Toan', 'Ly', 'Hoa']
+    code_team = ['aaa', 'bbb', 'ccc']
+    return render_template('home.html', account=account, list_team=list_team, code_team=code_team)
 
-@app.route('/team/<team_name>/<account_name>')
-def team_page(account, team_name):
-    return render_template('team.html', team_name=team_name, account=account)
+@app.route('/team/<code_team>', methods=['GET'])
+def team_page(code_team):
+    print(code_team)
+    account = request.args.get('account')
+    if account:
+        print(account)
+    return render_template('team.html', code_team=code_team)
 
 @app.route('/check-login', methods=['POST'])
 def checkLogin():
@@ -219,7 +225,8 @@ def main():
     
     print(f"{data}")
 
-    active_session = None
+    active_session = None 
+    
     while True:
         if active_session is None:
             choice = display_login_menu()

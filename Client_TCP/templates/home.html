@@ -58,7 +58,7 @@
         <div class="sidebar-img-username" style="position: absolute; bottom: 20px; width: 180px;">
           <div>
             <img src="../static/img/vebinh1.jpg" alt="username" style="display: inline-block;">
-            <p class="ml-2 mb-0"
+            <p class="ml-2 mb-0" id="name_user"
               style="display: inline-block; max-width: 150px; word-wrap: break-word; vertical-align: middle;">
               username</p>
 
@@ -113,115 +113,15 @@
         <div class="list-team">
           <div>
             <div class="row div-list-team">
-              <a href="team.html" class="col-2 team"
+              <!-- <a href="team.html" class="col-2 team"
                 style="margin-bottom: 34px; margin-right: 16px; margin-left: 18px;">
                 <div class="team-element">
                   <div class="img-div"></div>
                 </div>
                 <br>
                 <h6>Network Programing</h6>
-              </a>
-              <a href="team.html" class="col-2 team"
-                style="margin-bottom: 34px; margin-right: 16px; margin-left: 18px;">
-                <div class="team-element">
-                  <div class="img-div"></div>
-                </div>
-                <br>
-                <h6>Viet Nhat</h6>
-              </a>
-              <a href="team.html" class="col-2 team"
-                style="margin-bottom: 34px; margin-right: 16px; margin-left: 18px;">
-                <div class="team-element">
-                  <div class="img-div"></div>
-                </div>
-                <br>
-                <h6>Tran Hong Quan</h6>
-              </a>
-              <a href="team.html" class="col-2 team"
-                style="margin-bottom: 34px; margin-right: 16px; margin-left: 18px;">
-                <div class="team-element">
-                  <div class="img-div"></div>
-                </div>
-                <br>
-                <h6>Hoang Minh Nguyet</h6>
-              </a>
-              <a href="team.html" class="col-2 team"
-                style="margin-bottom: 34px; margin-right: 16px; margin-left: 18px;">
-                <div class="team-element">
-                  <div class="img-div"></div>
-                </div>
-                <br>
-                <h6>Nguyen Hai Nam</h6>
-              </a>
-              <a href="team.html" class="col-2 team"
-                style="margin-bottom: 34px; margin-right: 16px; margin-left: 18px;">
-                <div class="team-element">
-                  <div class="img-div"></div>
-                </div>
-                <br>
-                <h6>Team A</h6>
-              </a>
-              <a href="team.html" class="col-2 team"
-                style="margin-bottom: 34px; margin-right: 16px; margin-left: 18px;">
-                <div class="team-element">
-                  <div class="img-div"></div>
-                </div>
-                <br>
-                <h6>Team B</h6>
-              </a>
-              <a href="team.html" class="col-2 team"
-                style="margin-bottom: 34px; margin-right: 16px; margin-left: 18px;">
-                <div class="team-element">
-                  <div class="img-div"></div>
-                </div>
-                <br>
-                <h6>Team C</h6>
-              </a>
-              <a href="team.html" class="col-2 team"
-                style="margin-bottom: 34px; margin-right: 16px; margin-left: 18px;">
-                <div class="team-element">
-                  <div class="img-div"></div>
-                </div>
-                <br>
-                <h6>Team D</h6>
-              </a>
-              <a href="team.html" class="col-2 team"
-                style="margin-bottom: 34px; margin-right: 16px; margin-left: 18px;">
-                <div class="team-element">
-                  <div class="img-div"></div>
-                </div>
-                <br>
-                <h6>Network Programing</h6>
-              </a>
-              <a href="team.html" class="col-2 team"
-                style="margin-bottom: 34px; margin-right: 16px; margin-left: 18px;">
-                <div class="team-element">
-                  <div class="img-div"></div>
-                </div>
-                <br>
-                <h6>Network Programing</h6>
-              </a>
-              <a href="team.html" class="col-2 team"
-                style="margin-bottom: 34px; margin-right: 16px; margin-left: 18px;">
-                <div class="team-element">
-                  <div class="img-div"></div>
-                </div>
-                <br>
-                <h6>Network Programing</h6>
-              </a>
-              <a href="team.html" class="col-2 team"
-                style="margin-bottom: 34px; margin-right: 16px; margin-left: 18px;">
-                <div class="team-element">
-                  <div class="img-div"></div>
-                </div>
-                <br>
-                <h6>A</h6>
-              </a>
-
+              </a> -->
             </div>
-
-
-
           </div>
         </div>
       </div>
@@ -294,7 +194,76 @@
         </div>
       </div>
     </div>
+    
+    <script>
+      var account = "{{ account }}";
+      var list_team_str = "{{ list_team|safe }}";
+      var code_team_str = "{{ code_team|safe }}";
 
+      document.querySelector('#name_user').textContent = account;
+
+      var list_team = JSON.parse(list_team_str.replace(/'/g, '"'));
+      var code_team = JSON.parse(code_team_str.replace(/'/g, '"'));
+      console.log(account);
+      console.log(list_team);
+      console.log(code_team);
+
+      var container = document.querySelector('.div-list-team');
+      console.log(list_team.length);
+
+      var click_aTags = [];
+      // Tạo các thẻ <a> dựa trên mảng list_team và code_team
+      for (var i = 0; i < list_team.length; i++) {
+        var aTag = document.createElement('a');
+        aTag.setAttribute('id', code_team[i]);
+        aTag.classList.add('col-2', 'team');
+        aTag.style.marginBottom = '34px';
+        aTag.style.marginRight = '16px';
+        aTag.style.marginLeft = '18px';
+
+        var teamElementDiv = document.createElement('div');
+        teamElementDiv.classList.add('team-element');
+
+        var imgDiv = document.createElement('div');
+        imgDiv.classList.add('img-div');
+
+        teamElementDiv.appendChild(imgDiv);
+        aTag.appendChild(teamElementDiv);
+
+        var brTag = document.createElement('br');
+        aTag.appendChild(brTag);
+
+        var h6Tag = document.createElement('h6');
+        h6Tag.textContent = list_team[i];
+        aTag.appendChild(h6Tag);
+
+        container.appendChild(aTag);
+
+        const linkToTeam = document.querySelector(`#${code_team[i]}`);
+        click_aTags.push(linkToTeam);
+      }
+
+      click_aTags.forEach(function (click_aTag) {
+        click_aTag.addEventListener('click', function () {
+          window.location.href = `/team/${click_aTag.id}`;
+          // console.log("Đã click vào thẻ có ID:", click_aTag.id);
+
+          fetch(`/team/${click_aTag.id}?account=${account}`, {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+          })
+            .then(() => {
+              console.log("Request sent successfully.");
+            })
+            .catch(error => {
+              console.error('Error:', error);
+            });
+        });
+      });
+
+    </script>
 </body>
 
 </html>

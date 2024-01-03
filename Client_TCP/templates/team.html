@@ -32,17 +32,42 @@
     <div class="sidebar">
         <div class="row mr-0">
             <div class="col-2 col-sidebar pl-4 includedContent" style="height: 100vh;">
-                <script>
-                    $(function () {
-                        $(".includedContent").load("sidebar.html");
-                    });
-                </script>
+                <h2 class="mt-5 pb-4" id="name-app" style="text-align: center; font-weight: 800;">Cloudy</h2>
+                <div class="sidebar-teams-noti">
+                    <ul class="pl-0">
+                        <a href="#">
+                            <li style="background-color: var(--color-bg-sidebar-li);">
+                                <i class="fa-solid fa-users" style="font-size: 16px;"></i>
+                                <p>Teams</p>
+                            </li>
+                        </a>
+
+                        <a href="#">
+                            <li>
+                                <i class="fa-regular fa-bell pl-1" style="margin-right: 12px; padding-right: 0px;"></i>
+                                <p>Notifications</p>
+                            </li>
+                        </a>
+                    </ul>
+                </div>
+
+                <div class="sidebar-img-username" style="position: absolute; bottom: 20px; width: 180px;">
+                    <div>
+                        <img src="../static/img/vebinh1.jpg" alt="username" style="display: inline-block;">
+                        <p class="ml-2 mb-0" id="name_user"
+                            style="display: inline-block; max-width: 150px; word-wrap: break-word; vertical-align: middle;">
+                            username</p>
+
+                    </div>
+                    <a href="#"><i class="fa-solid fa-arrow-right-from-bracket"
+                            style="float: right; display: block;"></i></a>
+                </div>
             </div>
 
             <div class="col-10">
                 <div class="header ml-5 mb-4">
                     <div style="display: flex; flex-direction: column;">
-                        <a href="home.html" class="back-to-home">
+                        <a class="back-to-home">
                             <i class="fa-solid fa-angle-left" style="display: inline; margin-right: 10px;"></i>
                             <h5 style="display: inline;">Back</h5>
                         </a>
@@ -142,7 +167,7 @@
                             <td class="table-copy-move-download">
                                 <button class="folder-copy"><i class="fa-regular fa-copy"></i></button>
                                 <button class="folder-download"><i class="fa-solid fa-download"></i></button>
-                                <button class="folder-move"><img src="img/move-folder.svg" alt=""></button>
+                                <button class="folder-move"><img src="../static/img/move-folder.svg" alt=""></button>
                             </td>
                             <td class="table-modified">Oct 10, 2023</td>
                             <td class="table-modified-by">
@@ -162,7 +187,7 @@
                             <td class="table-copy-move-download">
                                 <button class="folder-copy"><i class="fa-regular fa-copy"></i></button>
                                 <button class="folder-download"><i class="fa-solid fa-download"></i></button>
-                                <button class="folder-move"><img src="img/move-folder.svg" alt=""></button>
+                                <button class="folder-move"><img src="../static/img/move-folder.svg" alt=""></button>
                             </td>
                             <td class="table-modified">Oct 10, 2023</td>
                             <td class="table-modified-by">
@@ -182,7 +207,7 @@
                             <td class="table-copy-move-download">
                                 <button class="folder-copy"><i class="fa-regular fa-copy"></i></button>
                                 <button class="folder-download"><i class="fa-solid fa-download"></i></button>
-                                <button class="folder-move"><img src="img/move-folder.svg" alt=""></button>
+                                <button class="folder-move"><img src="../static/img/move-folder.svg" alt=""></button>
                             </td>
                             <td class="table-modified">Oct 10, 2023</td>
                             <td class="table-modified-by">
@@ -202,7 +227,7 @@
                             <td class="table-copy-move-download">
                                 <button class="folder-copy"><i class="fa-regular fa-copy"></i></button>
                                 <button class="folder-download"><i class="fa-solid fa-download"></i></button>
-                                <button class="folder-move"><img src="img/move-folder.svg" alt=""></button>
+                                <button class="folder-move"><img src="../static/img/move-folder.svg" alt=""></button>
                             </td>
                             <td class="table-modified">Oct 10, 2023</td>
                             <td class="table-modified-by">
@@ -235,7 +260,7 @@
                         </tr>
                         <!-- Content -->
                         <tr class="tr-folder-list">
-                            <td class="table-img-folder"><img src="img/vebinh1.jpg" alt="Img"></td>
+                            <td class="table-img-folder"><img src="../static/img/vebinh1.jpg" alt="Img"></td>
                             <td class="table-name-member-invite">Username</td>
                             <td class="table-invite-date">Oct 10, 2023</td>
                             <td class="table-accept"><button class="icon-table-accept"><i
@@ -244,7 +269,7 @@
                                         style="opacity: 1;"></i></button></td>
                         </tr>
                         <tr class="tr-folder-list">
-                            <td class="table-img-folder"><img src="img/vebinh1.jpg" alt="Img"></td>
+                            <td class="table-img-folder"><img src="../static/img/vebinh1.jpg" alt="Img"></td>
                             <td class="table-name-member-invite">Username</td>
                             <td class="table-invite-date">Oct 10, 2023</td>
                             <td class="table-accept"><button class="icon-table-accept"><i
@@ -253,7 +278,7 @@
                                         style="opacity: 1;"></i></button></td>
                         </tr>
                         <tr class="tr-folder-list">
-                            <td class="table-img-folder"><img src="img/vebinh1.jpg" alt="Img"></td>
+                            <td class="table-img-folder"><img src="../static/img/vebinh1.jpg" alt="Img"></td>
                             <td class="table-name-member-invite">Username</td>
                             <td class="table-invite-date">Oct 10, 2023</td>
                             <td class="table-accept"><button class="icon-table-accept"><i
@@ -262,7 +287,7 @@
                                         style="opacity: 1;"></i></button></td>
                         </tr>
                         <tr class="tr-folder-list">
-                            <td class="table-img-folder"><img src="img/vebinh1.jpg" alt="Img"></td>
+                            <td class="table-img-folder"><img src="../static/img/vebinh1.jpg" alt="Img"></td>
                             <td class="table-name-member-invite">Username</td>
                             <td class="table-invite-date">Oct 10, 2023</td>
                             <td class="table-accept"><button class="icon-table-accept"><i
@@ -271,7 +296,7 @@
                                         style="opacity: 1;"></i></button></td>
                         </tr>
                         <tr class="tr-folder-list">
-                            <td class="table-img-folder"><img src="img/vebinh1.jpg" alt="Img"></td>
+                            <td class="table-img-folder"><img src="../static/img/vebinh1.jpg" alt="Img"></td>
                             <td class="table-name-member-invite">Username</td>
                             <td class="table-invite-date">Oct 10, 2023</td>
                             <td class="table-accept"><button class="icon-table-accept"><i
@@ -279,15 +304,11 @@
                             <td class="table-decline"><button class="icon-table-decline"><i class="fa-solid fa-xmark"
                                         style="opacity: 1;"></i></button></td>
                         </tr>
-
 
                     </table>
                 </div>
-
             </div>
-
         </div>
-    </div>
     </div>
 
     <!-- Popup Add Member -->

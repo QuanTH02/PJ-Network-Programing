@@ -229,7 +229,10 @@ $(document).ready(function () {
         });
     });
 
-
+    document.querySelector('.back-to-home').addEventListener('click', function(event) {
+        event.preventDefault();  // Ngăn chặn hành động mặc định của thẻ <a>
+        window.history.back();  // Trở về trang trước đó
+    });
 
 
 });
