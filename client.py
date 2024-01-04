@@ -85,7 +85,7 @@ def main():
         elif cmd == "MOVE_FILE":
             move_file(client, data[1], data[2])
         elif cmd == "COPY_FILE":
-            copy_file(client, data[1], data[2])
+            copy_file(client, data[1], data[2], data[3])
         elif cmd == "RENAME_FILE":
             rename_file(client, data[1], data[2])
 

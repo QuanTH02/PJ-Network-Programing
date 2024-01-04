@@ -2,13 +2,13 @@ import os
 import socket
 import threading
 import sqlite3
-import re
 import random
 import string
 import shutil
+from tqdm import tqdm
 import sys
 
-from const import IP, SIZE, FORMAT, SERVER_DATA_PATH
+from const import IP, SIZE, FORMAT, SERVER_DATA_PATH, FILE_BLOCK_SIZE
 
 DB_CONNECTIONS = {}
 DB_CONNECTIONS_LOCK = threading.Lock()
@@ -239,24 +239,35 @@ def decline_request(conn, data, cursor, dbconn):
     conn.send(send_data.encode(FORMAT))
 
 
-def receive_file(conn, des_path):
-    with open(des_path, "wb") as f:
+def receive_file(conn, data):
+    file_path = data[1]
+    file_size = data[2]
+    bar = tqdm(
+        range(file_size),
+        f"Receiving {file_path}",
+        unit="B",
+        unit_scale=True,
+        unit_divisor=SIZE,
+    )
+    with open(file_path, "wb") as f:
         while True:
-            chunk = conn.recv(SIZE)
+            chunk = conn.recv(FILE_BLOCK_SIZE)
 
             if not chunk:
                 break
+            chunk = chunk.decode(FORMAT)
             f.write(chunk)
+            bar.update(len(chunk))
 
 
-def send_file(conn, des_path):
-    with open(des_path, "rb") as f:
+def send_file(conn, src_path):
+    with open(src_path, "rb") as f:
         while True:
-            chunk = conn.send(SIZE)
+            chunk = f.read(FILE_BLOCK_SIZE)
 
             if not chunk:
                 break
-            f.write(chunk)
+            conn.send(SIZE).encode(FORMAT)
 
 
 def handle_client(conn, addr):
