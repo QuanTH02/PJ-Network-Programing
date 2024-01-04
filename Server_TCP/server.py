@@ -40,16 +40,30 @@ def upload_file(conn, data):
     des_path += name.rsplit('/', 1)[0]
     filepath = os.path.join(SERVER_DATA_PATH, des_path)
 
+    # send_data = None
+
+    # if os.path.exists(filepath):
+    #     send_data = "2181"
+    #     # conn.send("NO".encode(FORMAT))
+    #     return send_data
+
+    # conn.send("OK".encode(FORMAT))
+    
     with open(filepath, "wb") as f:
+        print("Receiving...")
         # f.write(text)
         while True:
             chunk = conn.recv(SIZE)
+            print(chunk)
+            if len(chunk) == 0:
+                print("Len = 0")
+                chunk = chunk.decode(FORMAT)
             if not chunk:
+                print("Done")
                 break
             f.write(chunk)
-        
 
-    send_data = "1180"
+    send_data = "1190"
     # conn.send(send_data.encode(FORMAT))
     return send_data
 
@@ -63,8 +77,7 @@ def download_file(conn, data):
                 break
             conn.send(chunk)
 
-
-    send_data = "1190\n"
+    send_data = "1200\n"
     return send_data
 
 def make_directory(conn, data):
@@ -160,6 +173,7 @@ def move_directory(conn, data):
 
 
 def show_my_teams(conn, data, cursor):
+    print("Show my teams: ~~~~~~~~~~~~~")
     username = data[1]
 
     if username is not None:
@@ -168,9 +182,24 @@ def show_my_teams(conn, data, cursor):
             (username, ),
         )
         result = cursor.fetchall()
+
+        result_code = []
+
+        for row in result:
+            cursor.execute(
+                "SELECT team_code FROM team WHERE team_name = ?",
+                (row[0], ),
+            )
+            code = cursor.fetchone()
+            if code:
+                result_code.append(code)
+        
         if result:
             teams = [row[0] for row in result]
-            send_data = "1260\n" + "\n".join(teams)
+            codes = [row_code[0] for row_code in result_code]
+
+            send_data = "1260\n" + "\n".join(teams).rstrip("\n")
+            send_data += "\n" + "\n".join(codes)
         else:
             send_data = "1261\nYou are not a member of any team."
     else:
@@ -278,6 +307,8 @@ def handle_client(conn, addr):
         commands = [request for request in requests.split('\r\n') if request]
         print(commands)
 
+        out = 0
+
         for command in commands:
             data = command.split("\n")
             cmd = data[0]
@@ -286,6 +317,7 @@ def handle_client(conn, addr):
                 active_session = login(conn, data, cursor, addr)
             elif cmd == "LOGOUT":
                 active_session = None
+                out = 1
                 break
             elif cmd == "SIGNUP":
                 register(conn, data, cursor, dbconn)
@@ -315,11 +347,14 @@ def handle_client(conn, addr):
 
                 response += "\r\n"
 
+                conn.send(response.encode(FORMAT))
+                print("Response: ", response)
+
             elif len(cmd) == 0:
                 break
 
-        conn.send(response.encode(FORMAT))
-        print("Response: ", response)
+        if out == 1:
+            break
 
     print(f"[DISCONNECTED] {addr} disconnected")
     conn.close()

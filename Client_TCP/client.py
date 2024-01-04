@@ -1,5 +1,7 @@
+import random
 import socket
 import os
+import string
 from flask import Flask, jsonify, redirect, render_template, request, url_for
 
 app = Flask(__name__)
@@ -70,8 +72,12 @@ def responseFromServer(client):
             print("Show my teams successfully")
         if response.startswith("1100"):
             print("Show team member successfully")
-        if response.startswith("1180"):
+        if response.startswith("1190"):
             print("Upload file successfully")
+        if response.startswith("2181"):
+            print("File đã tồn tại ở thư mục đích")
+        if response.startswith("1200"):
+            print("Download file successfully")
 
 
 
@@ -80,13 +86,9 @@ def responseFromServer(client):
 
 
 def show_my_teams(client, username):
-    print("Xin chao")
     client.send(f"SHOW_MY_TEAMS\n{username}\r\n".encode(FORMAT))
-    print("Xin chao")
-    response = client.recv(SIZE).decode(FORMAT)
-    print("Xin chao")
-    print(response)
-    return response
+    # response = client.recv(SIZE).decode(FORMAT)
+    # return response
     # responseFromServer(client)
 
 
@@ -94,11 +96,18 @@ def upload_file(client, path, des_path):
     filename = os.path.basename(path)
     client.send(f"UPLOAD\n{filename}\n{des_path}\r\n".encode(FORMAT))
 
+    # response = client.recv(SIZE).decode(FORMAT)
+
+    # if True:
     with open(path, "rb") as f:
+        print("Uploading file...")
         # text = f.read()
         while True:
             chunk = f.read(SIZE)
+            print(chunk)
             if not chunk:
+                print("Send end of file")
+                client.send(''.encode(FORMAT))
                 break
             client.send(chunk)
 
@@ -156,10 +165,11 @@ def move_directory(client, dir_path, des_path):
 ####################################################################
 ####################################################################
 ####################################################################
-    
-def login(client, username, password):
-    # username = input("Enter username: ")
-    # password = input("Enter password: ")
+
+# def login(client, username, password):
+def login(client):
+    username = input("Enter username: ")
+    password = input("Enter password: ")
     client.send(f"LOGIN\n{username}\n{password}\r\n".encode(FORMAT))
 
     # response = client.recv(SIZE).decode(FORMAT)
@@ -201,11 +211,23 @@ def login_page():
 
 @app.route('/home/account=<account>')
 def home_page(account):
-    list_team = ['Toan', 'Ly', 'Hoa']
-    code_team = ['aaa', 'bbb', 'ccc']
+    # list_team = ['Toan', 'Ly', 'Hoa']
+    # code_team = ['aaa', 'bbb', 'ccc']
     print("Xin chao")
-    a = show_my_teams(client, account)
-    # print(a)
+    show_my_teams(client, account)
+    response = responseFromServer(client)
+    list_response = response.split('\n')
+    trimmed_response = list_response[1:]
+
+    mid = len(trimmed_response) // 2
+
+    list_team = trimmed_response[:mid]
+    print("List Team:")
+    print(list_team)
+
+    code_team = trimmed_response[mid:]
+    print("Code Team:")
+    print(code_team)
 
     return render_template('home.html', account=account, list_team=list_team, code_team=code_team)
 
@@ -223,10 +245,10 @@ def checkLogin():
     account = data.get('account')
     password = data.get('password')
 
-    # if login(client, account, password):
-    #     return jsonify({"message": "1030"})
-    if account == "nam123" and password == "Test1234":
+    if login(client, account, password):
         return jsonify({"message": "1030"})
+    # if account == "nam123" and password == "Test1234":
+    #     return jsonify({"message": "1030"})
     else:
         return jsonify({"message": "Invalid credentials"})
         
@@ -239,14 +261,12 @@ def main():
     print(f"{data}")
 
     active_session = None 
-    app.run(debug=True)
+    # app.run(debug=True)
     while True:
         if active_session is None:
             choice = display_login_menu()
-
             if choice == "1":
                 active_session = login(client)
-                
             elif choice == "2":
                 signup(client)
             elif choice == "3":
@@ -307,3 +327,4 @@ def main():
 if __name__ == "__main__":
     # app.run(debug=True)
     main()
+
