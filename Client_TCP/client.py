@@ -6,12 +6,12 @@ from flask import Flask, jsonify, redirect, render_template, request, url_for
 
 app = Flask(__name__)
 
-
 IP = socket.gethostbyname(socket.gethostname())
 PORT = 5000
 ADDR = (IP, PORT)
 FORMAT = "utf-8"
 SIZE = 1024
+FILE_BLOCK_SIZE = 131072
 
 def display_login_menu():
     print("1. Login")
@@ -31,11 +31,16 @@ def display_main_menu():
     print("8. Copy Directory")
     print("9. Move Directory")
     print("10. Logout")
-    choice = input("Choose an option (1-10): ")
+    print("11. Join Team")
+    print("12. Create Team")
+    choice = input("Choose an option (1-12): ")
     return choice
 
 def responseFromServer(client):
+    print("Go to responseFromServer")
     requests = client.recv(SIZE).decode(FORMAT)
+
+    # Sửa
     responses = [request for request in requests.split('\r\n') if request]
 
     for response in responses:
@@ -78,8 +83,16 @@ def responseFromServer(client):
             print("File đã tồn tại ở thư mục đích")
         if response.startswith("1200"):
             print("Download file successfully")
-
-
+        if response.startswith("1060"):
+            print("Join team successfully")
+        if response.startswith("2061"):
+            print("Nhập sai Team code")
+        if response.startswith("2062"):
+            print("Đã tham gia nhóm rồi")
+        if response.startswith("1040"):
+            print("Create team successfully")
+        if response.startswith("2041"):
+            print("Tên nhóm đã tồn tại")
 
         print(response)
         return response
@@ -94,20 +107,21 @@ def show_my_teams(client, username):
 
 def upload_file(client, path, des_path):
     filename = os.path.basename(path)
-    client.send(f"UPLOAD\n{filename}\n{des_path}\r\n".encode(FORMAT))
+    file_size = os.path.getsize(path)
+    client.send(f"UPLOAD\n{filename}\n{des_path}\n{file_size}\r\n".encode(FORMAT))
+    print("To recv")
+    response = client.recv(SIZE).decode(FORMAT)
+    print("To respond")
+    if response == "2281":
+        return
 
-    # response = client.recv(SIZE).decode(FORMAT)
-
-    # if True:
+    print("To open")
     with open(path, "rb") as f:
         print("Uploading file...")
         # text = f.read()
         while True:
-            chunk = f.read(SIZE)
-            print(chunk)
+            chunk = f.read(FILE_BLOCK_SIZE)
             if not chunk:
-                print("Send end of file")
-                client.send(''.encode(FORMAT))
                 break
             client.send(chunk)
 
@@ -132,6 +146,7 @@ def make_directory(client, dir_name):
     # print(response)
 
 def show_team_member(client, team_name):
+    print("Show team member")
     client.send(f"GET_MEMBER\n{team_name}".encode(FORMAT))
     # response = client.recv(SIZE).decode(FORMAT)
     # print(response)
@@ -166,10 +181,10 @@ def move_directory(client, dir_path, des_path):
 ####################################################################
 ####################################################################
 
-# def login(client, username, password):
-def login(client):
-    username = input("Enter username: ")
-    password = input("Enter password: ")
+def login(client, username, password):
+# def login(client):
+#     username = input("Enter username: ")
+#     password = input("Enter password: ")
     client.send(f"LOGIN\n{username}\n{password}\r\n".encode(FORMAT))
 
     # response = client.recv(SIZE).decode(FORMAT)
@@ -199,6 +214,19 @@ def signup(client):
     #     print("Signup successful!")
     # else:
     #     print("Signup failed. Please try again.")
+
+def create_team(client, team_name, username):
+    print("Create team")
+    client.send(f"CREATE_TEAM\n{team_name}\n{username}\r\n".encode(FORMAT))
+    # response = client.recv(SIZE).decode(FORMAT)
+    # print(response)
+
+def join_team(client, team_code, account):
+    print("To join team")
+    client.send(f"JOIN_TEAM\n{team_code}\n{account}\r\n".encode(FORMAT))
+    print("Send successful")
+    # response = client.recv(SIZE).decode(FORMAT)
+    # print(response)
 
 ####################################################################
 ####################################################################
@@ -238,7 +266,8 @@ def team_page(code_team):
     if account:
         print(account)
     return render_template('team.html', code_team=code_team)
-
+################################################################### 
+# @Controller
 @app.route('/check-login', methods=['POST'])
 def checkLogin():
     data = request.json
@@ -251,7 +280,48 @@ def checkLogin():
     #     return jsonify({"message": "1030"})
     else:
         return jsonify({"message": "Invalid credentials"})
-        
+    
+@app.route('/check-join-team', methods=['POST'])
+def checkJoinTeam():
+    data = request.json
+    account = data.get('account')
+    code = data.get('code')
+    join_team(client, code, account)
+
+    response = responseFromServer(client)
+    if response == "1060":
+        return jsonify({"message": "1060"})
+    elif response == "2011":
+        return jsonify({"message": "2011"})
+    elif response == "2061":
+        return jsonify({"message": "2061"})
+    elif response == "2062":
+        return jsonify({"message": "2062"})
+    else:
+        return jsonify({"message": "Invalid credentials"})
+    
+@app.route('/check-create-team', methods=['POST'])
+def checkCreateTeam():
+    data = request.json
+    account = data.get('account')
+    team_name = data.get('team_name')
+    create_team(client, team_name, account)
+    response = responseFromServer(client)
+    print("Response: ", response)
+
+    if response.startswith("1040"):
+        string_res = response.split('\n')
+        print("String res: ", string_res)
+        code = string_res[1]
+        print("Code", code)
+        return jsonify({"message": "1040", "code_team": code})
+    elif response == "2011":
+        return jsonify({"message": "2011"})
+    elif response == "2041":
+        return jsonify({"message": "2041"})
+    else:
+        return jsonify({"message": "Invalid credentials"})
+###################################################################
 def main():
     global client
     client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -261,7 +331,7 @@ def main():
     print(f"{data}")
 
     active_session = None 
-    # app.run(debug=True)
+    app.run(debug=True)
     while True:
         if active_session is None:
             choice = display_login_menu()
@@ -270,7 +340,7 @@ def main():
             elif choice == "2":
                 signup(client)
             elif choice == "3":
-                client.send("LOGOUT".encode(FORMAT))
+                # client.send("LOGOUT".encode(FORMAT))
                 break
             else:
                 print("Invalid choice. Please try again.")
@@ -310,7 +380,13 @@ def main():
                 move_directory(client, path, des_path)
             elif choice == "10":
                 client.send("LOGOUT".encode(FORMAT))
-                break
+                active_session = None
+            elif choice == "11":
+                team_code = input("Enter team code: ")
+                join_team(client, team_code, active_session["username"])
+            elif choice == "12":
+                team_name = input("Enter team name: ")
+                create_team(client, team_name, active_session["username"])
             else:
                 print("Invalid choice. Please try again.")
 

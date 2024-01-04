@@ -21,6 +21,7 @@ body {
 
 .bg-login {
     background-color: rgb(21, 21, 21);
+    padding-bottom: 0.1px;
 }
 
 .tip {
@@ -37,6 +38,7 @@ body {
     height: 550px;
     margin: 0 auto 100px;
     background: #fff;
+    
 }
 
 .sign-in {

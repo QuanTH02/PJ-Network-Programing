@@ -62,7 +62,8 @@
               username</p>
 
           </div>
-          <a href="#"><i class="fa-solid fa-arrow-right-from-bracket" style="float: right; display: block;"></i></a>
+          <a href="#"><i class="fa-solid fa-arrow-right-from-bracket log_out"
+              style="float: right; display: block;"></i></a>
         </div>
 
         <!--  -->
@@ -136,7 +137,7 @@
           <button class="btn btn-success join-team-btn" style="background-color: #4D4D4D;">Join team</button>
         </div>
 
-        <p class="p-message" id="p-message-code-team">Code team does not exist</p>
+        <p class="p-message" id="p-message-code-team"></p>
       </div>
     </div>
 
@@ -166,7 +167,7 @@
         <div class="div-add-member" style="display:flex; margin-top: 20px; flex-direction: column;">
           <div class="add-member-team-code" style="display: flex;">
             <div class="team-code" style="display: flex;" id="teamCode">
-              <input type="text" placeholder="123456" readonly>
+              <input id="code_new_team" type="text" placeholder="" readonly>
               <button id="copyButton"><i class="fa-regular fa-copy"></i></button>
             </div>
             <button class="refresh-btn"><i class="fa-solid fa-rotate-left"></i></button>
@@ -193,8 +194,35 @@
         </div>
       </div>
     </div>
-    
+
+    <!-- Popup Notification -->
+
+    <!-- Join team  -->
+    <div class="popup" id="joinTeamNotiPopup">
+      <div class="popup-content popup-border-bot" style="padding: 5px 20px;">
+        <div style="display: flex;" class="deleted">
+          <i class="fa-solid fa-check"></i>
+          <h6>Join team successfully</h6>
+        </div>
+      </div>
+    </div>
+
+    <!-- Create team  -->
+    <div class="popup" id="createTeamNotiPopup">
+      <div class="popup-content popup-border-bot" style="padding: 5px 20px;">
+        <div style="display: flex;" class="deleted">
+          <i class="fa-solid fa-check"></i>
+          <h6>Create team successfully</h6>
+        </div>
+      </div>
+    </div>
+
     <script>
+      logOut = document.querySelector('.log_out');
+      logOut.addEventListener('click', function () {
+        window.location.href = `/login`;
+      });
+
       var account = "{{ account }}";
       var list_team_str = "{{ list_team|safe }}";
       var code_team_str = "{{ code_team|safe }}";
@@ -261,6 +289,111 @@
             });
         });
       });
+
+      let codeTeamInput = document.querySelector('.code-team-inp');
+      let joinTeamBtn = document.querySelector('.join-team-btn');
+      let messageCodeTeam = document.querySelector('#p-message-code-team');
+      let joinTeamPopup = document.querySelector('#joinTeamPopup');
+      let joinTeamNotiPopup = document.querySelector('#joinTeamNotiPopup')
+
+      if (joinTeamBtn) {
+        joinTeamBtn.addEventListener('click', function () {
+          let inputValue = codeTeamInput.value.trim();
+
+          // Gửi dữ liệu code lên 
+          fetch('/check-join-team', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ account: account, code: inputValue }),
+          })
+            .then(response => {
+              if (!response.ok) {
+                throw new Error('Network response was not ok');
+              }
+              return response.json();
+            })
+            .then(data => {
+              console.log(data.message);
+              if (data.message === "1060") {
+                messageCodeTeam.style.display = "none";
+                joinTeamPopup.style.display = 'none';
+                joinTeamNotiPopup.style.display = 'block';
+
+                setTimeout(function () {
+                  joinTeamNotiPopup.style.display = "none";
+                }, 1000);
+              } else if (data.message === "2011") {
+                messageCodeTeam.innerText = "Chưa nhập đủ các trường thông tin";
+                messageCodeTeam.style.display = "block";
+              } else if (data.message === "2061") {
+                messageCodeTeam.innerText = "Mã code không tồn tại";
+                messageCodeTeam.style.display = "block";
+              } else if (data.message === "2062") {
+                messageCodeTeam.innerText = "Bạn đã tham gia team này rồi";
+                messageCodeTeam.style.display = "block";
+              } else {
+                console.log("Wrong")
+              }
+              // Xử lý phản hồi từ server nếu cần
+            })
+            .catch((error) => {
+              console.error('Error:', error);
+            });
+
+        });
+      }
+      let createTeamInput = document.querySelector('.create-team-inp');
+      let createTeamBtn = document.querySelector('.create-team-btn');
+      let teamNameInput = document.querySelector('.create-team-inp');
+      let messageCreateTeam = document.querySelector('#p-message-create-team');
+      let createTeamPopup = document.getElementById("createTeamPopup");
+      let addMemberPopup = document.getElementById("addMemberPopup");
+
+      if (createTeamBtn) {
+        createTeamBtn.addEventListener('click', function () {
+          let inputValue = teamNameInput.value.trim();  // Loại bỏ các khoảng trắng từ đầu và cuối chuỗi
+
+          fetch('/check-create-team', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ account: account, team_name: inputValue }),
+          })
+            .then(response => {
+              if (!response.ok) {
+                throw new Error('Network response was not ok');
+              }
+              return response.json();
+            })
+            .then(data => {
+              console.log(data.message);
+              if (data.message === "1040") {
+                messageCreateTeam.style.display = "none";
+                createTeamPopup.style.display = 'none';
+                addMemberPopup.style.display = 'block';
+                document.getElementById("code_new_team").placeholder = data.code_team;
+                
+              } else if (data.message === "2011") {
+                messageCreateTeam.innerText = "Chưa nhập đủ các trường thông tin";
+                messageCreateTeam.style.display = "block";
+              } else if (data.message === "2041") {
+                messageCreateTeam.innerText = "Tên nhóm đã tồn tại";
+                messageCreateTeam.style.display = "block";
+              } else {
+                console.log("Wrong Create Team")
+              }
+              // Xử lý phản hồi từ server nếu cần
+            })
+            .catch((error) => {
+              console.error('Error:', error);
+            });
+
+        });
+      }
+
 
     </script>
 </body>

@@ -39,10 +39,15 @@ $(document).ready(function () {
     // Popup Add Member
     let skipBtn = document.querySelector('.skip-btn');
     let addMemberPopup = document.getElementById("addMemberPopup");
-
+    let createTeamNotiPopup = document.getElementById("createTeamNotiPopup");
+    
     if (skipBtn && addMemberPopup) {
         skipBtn.addEventListener("click", function () {
             addMemberPopup.style.display = "none";
+            createTeamNotiPopup.style.display = "block";
+            setTimeout(function () {
+                createTeamNotiPopup.style.display = "none";
+            }, 1000);
         });
     }
 
@@ -65,20 +70,20 @@ $(document).ready(function () {
     }
 
 
-    let messageCodeTeam = document.querySelector('#p-message-code-team');
+    // let messageCodeTeam = document.querySelector('#p-message-code-team');
 
-    if (joinTeamBtn) {
-        joinTeamBtn.addEventListener('click', function () {
-            let inputValue = codeTeamInput.value.trim();  // Loại bỏ các khoảng trắng từ đầu và cuối chuỗi
+    // if (joinTeamBtn) {
+    //     joinTeamBtn.addEventListener('click', function () {
+    //         let inputValue = codeTeamInput.value.trim();
 
-            if (inputValue === "123456") {
-                console.log("Successfully entered");
-                messageCodeTeam.style.display = "none";
-            } else {
-                messageCodeTeam.style.display = "block";
-            }
-        });
-    }
+    //         if (inputValue === "123456") {
+    //             console.log("Successfully entered");
+    //             messageCodeTeam.style.display = "none";
+    //         } else {
+    //             messageCodeTeam.style.display = "block";
+    //         }
+    //     });
+    // }
 
     // Popup Create team
     let createTeamInput = document.querySelector('.create-team-inp');
@@ -96,23 +101,23 @@ $(document).ready(function () {
         });
     }
 
-    let teamNameInput = document.querySelector('.create-team-inp');
-    let messageCreateTeam = document.querySelector('#p-message-create-team');
+    // let teamNameInput = document.querySelector('.create-team-inp');
+    // let messageCreateTeam = document.querySelector('#p-message-create-team');
 
-    if (createTeamBtn) {
-        createTeamBtn.addEventListener('click', function () {
-            let inputValue = teamNameInput.value.trim();  // Loại bỏ các khoảng trắng từ đầu và cuối chuỗi
-    
-            if (inputValue === "123456") {
-                console.log("Successfully entered");
-                messageCreateTeam.style.display = "none";
-                createTeamPopup.style.display = "none";
-                addMemberPopup.style.display = "block";
-            } else {
-                messageCreateTeam.style.display = "block";
-            }
-        });
-    }
+    // if (createTeamBtn) {
+    //     createTeamBtn.addEventListener('click', function () {
+    //         let inputValue = teamNameInput.value.trim();  // Loại bỏ các khoảng trắng từ đầu và cuối chuỗi
+
+    //         if (inputValue === "123456") {
+    //             console.log("Successfully entered");
+    //             messageCreateTeam.style.display = "none";
+    //             createTeamPopup.style.display = "none";
+    //             addMemberPopup.style.display = "block";
+    //         } else {
+    //             messageCreateTeam.style.display = "block";
+    //         }
+    //     });
+    // }
 
     // Filter input
     document.querySelector('.search-box input').addEventListener('keyup', filterTeams);
