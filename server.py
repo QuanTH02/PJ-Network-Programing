@@ -5,7 +5,6 @@ import sqlite3
 import re
 import random
 import string
-import bcrypt
 import shutil
 import sys
 
@@ -34,12 +33,6 @@ def random_team_code(cursor):
         characters = string.ascii_letters + string.digits
         code = "".join(random.choice(characters) for _ in range(6))
     return code
-
-
-def get_account_id(username, cursor):
-    cursor.execute("SELECT account_id FROM Account WHERE account=?", (username,))
-    result = cursor.fetchone()
-    return result[0] if result else None
 
 
 def get_database_connection():
@@ -157,7 +150,6 @@ def move_file(conn, data, cursor, dbconn):
 
 def create_team(conn, data, cursor, dbconn):
     team_name, account = data[1], data[2]
-    account_id = get_account_id(account, cursor)
 
     if not team_name:
         send_data = "2011"
@@ -172,8 +164,8 @@ def create_team(conn, data, cursor, dbconn):
             os.makedirs(team_path)
             team_code = random_team_code(cursor)
             cursor.execute(
-                "INSERT INTO team (leader_id, team_name, team_code) VALUES (?, ?, ?)",
-                (account_id, team_name, team_code),
+                "INSERT INTO team (leader, team_name, team_code) VALUES (?, ?, ?)",
+                (account, team_name, team_code),
             )
             dbconn.commit()
 
@@ -247,6 +239,26 @@ def decline_request(conn, data, cursor, dbconn):
     conn.send(send_data.encode(FORMAT))
 
 
+def receive_file(conn, des_path):
+    with open(des_path, "wb") as f:
+        while True:
+            chunk = conn.recv(SIZE)
+
+            if not chunk:
+                break
+            f.write(chunk)
+
+
+def send_file(conn, des_path):
+    with open(des_path, "rb") as f:
+        while True:
+            chunk = conn.send(SIZE)
+
+            if not chunk:
+                break
+            f.write(chunk)
+
+
 def handle_client(conn, addr):
     with get_database_connection() as dbconn:
         cursor = dbconn.cursor()
@@ -295,7 +307,7 @@ def main():
         print("Usage: python server.py <port>")
         return
 
-    PORT = sys.argv[1]
+    PORT = int(sys.argv[1])
     ADDR = (IP, PORT)
     print("[STARTING] Server is starting")
     server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
