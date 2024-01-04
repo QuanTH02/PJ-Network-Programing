@@ -13,7 +13,9 @@ def send_request(command, *args):
         client_socket.connect(
             (socket.gethostbyname(socket.gethostname()), int(sys.argv[1]))
         )
-        data = (f"{command}\n" + "\n".join(args)).encode(FORMAT)
+        msg = client_socket.recv(SIZE).decode(FORMAT)
+        print(msg)
+        data = (f"{command}\n" + '\n'.join(args)).encode(FORMAT)
         client_socket.send(data)
         response = client_socket.recv(SIZE).decode(FORMAT)
     return response
@@ -30,7 +32,7 @@ def process_request():
     if len(data) == 0:
         return "Invalid request."
 
-    data = data.split(",")
+    data = data.split(',')
     cmd = data[0]
 
     if cmd == "CREATE_TEAM":

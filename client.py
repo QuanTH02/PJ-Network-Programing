@@ -64,7 +64,7 @@ def main():
         print("Usage: python server.py <port>")
         return
     IP = socket.gethostbyname(socket.gethostname())
-    PORT = sys.argv[1]
+    PORT = int(sys.argv[1])
     ADDR = (IP, PORT)
     client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     client.connect(ADDR)

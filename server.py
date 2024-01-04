@@ -66,18 +66,18 @@ def delete_file(conn, data, cursor, dbconn):
 def rename_file(conn, data, cursor, dbconn):
     file_path = data[1]
     new_file_name = data[2]
-    file_name = file_path.split("/")[-1]
-    file_directory = "/".join(file_path.split("/")[:-1])
+    file_name = file_path.split('/')[-1]
+    file_directory = '/'.join(file_path.split('/')[:-1])
 
     if not new_file_name:
         send_data = "2202"
     elif "/" in new_file_name or "\\" in new_file_name:
         send_data = "2202"
-    elif new_file_name.endswith("."):
+    elif new_file_name.endswith('.'):
         send_data = "2202"
     else:
-        new_file_extension = new_file_name.split(".")[-1]
-        old_file_extension = file_name.split(".")[-1]
+        new_file_extension = new_file_name.split('.')[-1]
+        old_file_extension = file_name.split('.')[-1]
 
         if new_file_extension.lower() != old_file_extension.lower():
             send_data = "2203"
@@ -104,7 +104,7 @@ def copy_file(conn, data, cursor, dbconn):
     source_path = data[1]
     destination_directory = data[2]
     account = data[3]
-    source_file_name = source_path.split("/")[-1]
+    source_file_name = source_path.split('/')[-1]
     destination_path = f"{destination_directory}/{source_file_name}"
     if os.path.exists(destination_path):
         send_data = "2181"
@@ -127,7 +127,7 @@ def copy_file(conn, data, cursor, dbconn):
 def move_file(conn, data, cursor, dbconn):
     source_path = data[1]
     destination_directory = data[2]
-    source_file_name = source_path.split("/")[-1]
+    source_file_name = source_path.split('/')[-1]
     destination_path = f"{destination_directory}/{source_file_name}"
 
     if os.path.exists(destination_path):
@@ -278,11 +278,10 @@ def handle_client(conn, addr):
     conn.send("OK\nWelcome to the File Server.".encode(FORMAT))
 
     while True:
-        data = conn.recv(SIZE)
+        data = conn.recv(SIZE).decode(FORMAT)
         if len(data) == 0:
             break
-        data.decode(FORMAT)
-        data = data.split("\n")
+        data = data.split('\n')
         cmd = data[0]
         if cmd == "DELETE_FILE":
             delete_file(conn, data, cursor, dbconn)
