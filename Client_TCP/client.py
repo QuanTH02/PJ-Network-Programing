@@ -76,13 +76,19 @@ def responseFromServer(client):
 
 
         print(response)
+        return response
 
 
 def show_my_teams(client, username):
+    print("Xin chao")
     client.send(f"SHOW_MY_TEAMS\n{username}\r\n".encode(FORMAT))
-    # response = client.recv(SIZE).decode(FORMAT)
-    # print(response)
-    responseFromServer(client)
+    print("Xin chao")
+    response = client.recv(SIZE).decode(FORMAT)
+    print("Xin chao")
+    print(response)
+    return response
+    # responseFromServer(client)
+
 
 def upload_file(client, path, des_path):
     filename = os.path.basename(path)
@@ -151,9 +157,9 @@ def move_directory(client, dir_path, des_path):
 ####################################################################
 ####################################################################
     
-def login(client):
-    username = input("Enter username: ")
-    password = input("Enter password: ")
+def login(client, username, password):
+    # username = input("Enter username: ")
+    # password = input("Enter password: ")
     client.send(f"LOGIN\n{username}\n{password}\r\n".encode(FORMAT))
 
     # response = client.recv(SIZE).decode(FORMAT)
@@ -197,6 +203,10 @@ def login_page():
 def home_page(account):
     list_team = ['Toan', 'Ly', 'Hoa']
     code_team = ['aaa', 'bbb', 'ccc']
+    print("Xin chao")
+    a = show_my_teams(client, account)
+    # print(a)
+
     return render_template('home.html', account=account, list_team=list_team, code_team=code_team)
 
 @app.route('/team/<code_team>', methods=['GET'])
@@ -213,20 +223,23 @@ def checkLogin():
     account = data.get('account')
     password = data.get('password')
 
+    # if login(client, account, password):
+    #     return jsonify({"message": "1030"})
     if account == "nam123" and password == "Test1234":
         return jsonify({"message": "1030"})
     else:
         return jsonify({"message": "Invalid credentials"})
         
 def main():
+    global client
     client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     client.connect(ADDR)
     data = client.recv(SIZE).decode(FORMAT)
-    
+    print("Client: ", client)
     print(f"{data}")
 
     active_session = None 
-    
+    app.run(debug=True)
     while True:
         if active_session is None:
             choice = display_login_menu()
@@ -292,5 +305,5 @@ def main():
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    # app.run(debug=True)
     main()
