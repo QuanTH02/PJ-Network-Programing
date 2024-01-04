@@ -255,7 +255,7 @@ def receive_file(conn, data):
 
             if not chunk:
                 break
-            chunk = chunk.decode(FORMAT)
+            chunk = chunk
             f.write(chunk)
             bar.update(len(chunk))
 
@@ -267,7 +267,7 @@ def send_file(conn, src_path):
 
             if not chunk:
                 break
-            conn.send(SIZE).encode(FORMAT)
+            conn.send(SIZE)
 
 
 def handle_client(conn, addr):
