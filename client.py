@@ -31,23 +31,17 @@ def display_main_menu():
 
 
 def login(client):
-    username = input("Enter username: ")
+    account = input("Enter username: ")
     password = input("Enter password: ")
-    client.send(f"LOGIN\n{username}\n{password}".encode(FORMAT))
+    client.send(f"LOGIN\n{account}\n{password}".encode(FORMAT))
     response = client.recv(SIZE).decode(FORMAT)
     print(f"{response}")
 
     if response.startswith("1030"):
         print("Login successful!")
-        return {"username": username}
-    elif response.startswith("2011"):
-        print("You haven't entered enough information!")
-        return None
-    elif response.startswith("2031"):
-        print("Account doesn't exist!")
-        return None
+        return {"username": account}
     else:
-        print("Wrong password!")
+        print("Login failed. Please try again.")
         return None
 
 

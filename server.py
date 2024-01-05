@@ -69,13 +69,13 @@ def get_account_id(username, cursor):
 
 
 def login(conn, data, cursor, addr):
-    account, password = data[1], data[2]
+    username, password = data[1], data[2]
 
-    if account == "" or password == "":
+    if username == "" or password == "":
         send_data = "2011"
     else:
         with DB_CONNECTIONS_LOCK:
-            cursor.execute("SELECT password FROM Account WHERE account=?", (account,))
+            cursor.execute("SELECT password FROM Account WHERE account=?", (username,))
             result = cursor.fetchone()
 
         if result:
@@ -83,14 +83,20 @@ def login(conn, data, cursor, addr):
                 send_data = "2032"
             else:
                 with ACTIVE_SESSIONS_LOCK:
-                    session_key = f"{addr[0]}:{addr[1]}:{account}"
+                    session_key = f"{addr[0]}:{addr[1]}:{username}"
                     ACTIVE_SESSIONS[session_key] = {
-                        "account_id": account,
-                        "username": account,
+                        "account_id": username,
+                        "username": username,
                     }
                 send_data = "1030"
         else:
-            send_data = "2031"
+            send_data = "2032"
+
+    conn.send(send_data.encode(FORMAT))
+    if "username" in locals():
+        return ACTIVE_SESSIONS.get(f"{addr[0]}:{addr[1]}:{username}")
+    else:
+        return None
 
     conn.send(send_data.encode(FORMAT))
     if "username" in locals():
