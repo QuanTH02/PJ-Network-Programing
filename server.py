@@ -1,3 +1,4 @@
+import hashlib
 import os
 import socket
 import threading
@@ -7,8 +8,16 @@ import string
 import shutil
 from tqdm import tqdm
 import sys
+from datetime import datetime, timedelta
 
-from const import IP, SIZE, FORMAT, SERVER_DATA_PATH, FILE_BLOCK_SIZE
+from const import (
+    IP,
+    SIZE,
+    FORMAT,
+    SERVER_DATA_PATH,
+    FILE_BLOCK_SIZE,
+    SESSION_TIMEOUT_MINUTES,
+)
 
 DB_CONNECTIONS = {}
 DB_CONNECTIONS_LOCK = threading.Lock()
@@ -26,13 +35,22 @@ def write_log(addr, request, response, cursor, dbconn):
 
 def random_team_code(cursor):
     characters = string.ascii_letters + string.digits
-    code = "".join(random.choice(characters) for _ in range(6))
+    rand_char = random.choice(string.ascii_letters)
+    rand_code = "".join(random.choice(characters) for _ in range(5))
+    code = rand_char + rand_code
     cursor.execute("Select team_code from team")
     result = cursor.fetchall()
     while code in result:
-        characters = string.ascii_letters + string.digits
-        code = "".join(random.choice(characters) for _ in range(6))
+        code = random_team_code(cursor)
     return code
+
+
+def create_session_id():
+    hash_object = hashlib.sha256(os.urandom(64))
+    session_id = hash_object.hexdigest()
+    while session_id in ACTIVE_SESSIONS:
+        session_id = create_session_id()
+    return session_id
 
 
 def get_database_connection():
@@ -66,18 +84,18 @@ def delete_file(conn, data, cursor, dbconn):
 def rename_file(conn, data, cursor, dbconn):
     file_path = data[1]
     new_file_name = data[2]
-    file_name = file_path.split('/')[-1]
-    file_directory = '/'.join(file_path.split('/')[:-1])
+    file_name = file_path.split("/")[-1]
+    file_directory = "/".join(file_path.split("/")[:-1])
 
     if not new_file_name:
         send_data = "2202"
     elif "/" in new_file_name or "\\" in new_file_name:
         send_data = "2202"
-    elif new_file_name.endswith('.'):
+    elif new_file_name.endswith("."):
         send_data = "2202"
     else:
-        new_file_extension = new_file_name.split('.')[-1]
-        old_file_extension = file_name.split('.')[-1]
+        new_file_extension = new_file_name.split(".")[-1]
+        old_file_extension = file_name.split(".")[-1]
 
         if new_file_extension.lower() != old_file_extension.lower():
             send_data = "2203"
@@ -104,7 +122,7 @@ def copy_file(conn, data, cursor, dbconn):
     source_path = data[1]
     destination_directory = data[2]
     account = data[3]
-    source_file_name = source_path.split('/')[-1]
+    source_file_name = source_path.split("/")[-1]
     destination_path = f"{destination_directory}/{source_file_name}"
     if os.path.exists(destination_path):
         send_data = "2181"
@@ -127,7 +145,7 @@ def copy_file(conn, data, cursor, dbconn):
 def move_file(conn, data, cursor, dbconn):
     source_path = data[1]
     destination_directory = data[2]
-    source_file_name = source_path.split('/')[-1]
+    source_file_name = source_path.split("/")[-1]
     destination_path = f"{destination_directory}/{source_file_name}"
 
     if os.path.exists(destination_path):
@@ -270,6 +288,83 @@ def send_file(conn, src_path):
             conn.send(SIZE)
 
 
+################################## LOGIN + REGISTER #################################
+def login(conn, data, cursor, addr):
+    username, password = data[1], data[2]
+
+    if username == "" or password == "":
+        send_data = "2011"
+    else:
+        with DB_CONNECTIONS_LOCK:
+            cursor.execute("SELECT password FROM Account WHERE account=?", (username,))
+            result = cursor.fetchone()
+
+        if result:
+            with ACTIVE_SESSIONS_LOCK:
+                session_key = f"{addr[0]}:{addr[1]}:{username}"
+                ACTIVE_SESSIONS[session_key] = {
+                    "account": username,
+                    "ip_address": addr[0],
+                    "client_socket": conn,
+                    "created_at": str(datetime.now()),
+                    "expires_at": str(
+                        datetime.now() + timedelta(minutes=SESSION_TIMEOUT_MINUTES)
+                    ),
+                }
+            send_data = session_key + "\n1030"
+        else:
+            send_data = "2032"
+
+    conn.send(f"{send_data}\r\n".encode(FORMAT))
+
+    # return send_data
+
+
+def signup(conn, data, cursor, dbconn):
+    username, password, name = data[1], data[2], data[3]
+    if username == "" or password == "" or name == "":
+        send_data = "2011"
+    # elif is_valid_password(password) is False:
+    #     send_data = "2012"
+    else:
+        with DB_CONNECTIONS_LOCK:
+            cursor.execute("SELECT account FROM Account WHERE account = ?", (username,))
+            result = cursor.fetchone()
+
+        if result:
+            send_data = "2013"
+        else:
+            send_data = "1010"
+            # hashed_password = bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt())
+            cursor.execute(
+                "INSERT INTO Account (account, password, name) VALUES (?, ?, ?)",
+                (username, password, name),
+            )
+            dbconn.commit()
+
+    conn.send(f"{send_data}\r\n".encode(FORMAT))
+    # return send_data
+
+def check_session_timeout(session_key):
+    with ACTIVE_SESSIONS_LOCK:
+        if session_key not in ACTIVE_SESSIONS:
+            return False
+        login_time = datetime.strptime(ACTIVE_SESSIONS[session_key]['created_at'], '%Y-%m-%d %H:%M:%S.%f')
+        if datetime.now() - login_time > timedelta(minutes=SESSION_TIMEOUT_MINUTES):
+            del ACTIVE_SESSIONS[session_key]
+            return False
+        else:
+            return True
+            
+def logout(conn, session_key):
+    with ACTIVE_SESSIONS_LOCK:
+        if session_key in ACTIVE_SESSIONS:
+            conn.send("1320").encode(FORMAT)
+            del ACTIVE_SESSIONS[session_key]
+        else:
+            conn.send("2321").encode(FORMAT)
+        
+
 def handle_client(conn, addr):
     with get_database_connection() as dbconn:
         cursor = dbconn.cursor()
@@ -278,10 +373,17 @@ def handle_client(conn, addr):
     conn.send("OK\nWelcome to the File Server.".encode(FORMAT))
 
     while True:
+        sesison_key = conn.recv(SIZE).decode(FORMAT)
+        is_active = check_session_timeout(sesison_key)
+        if is_active == False:
+            conn.send("2311").encode(FORMAT)
+        else:
+            conn.send("1310").encode(FORMAT)
+            
         data = conn.recv(SIZE).decode(FORMAT)
         if len(data) == 0:
             break
-        data = data.split('\n')
+        data = data.split("\n")
         cmd = data[0]
         if cmd == "DELETE_FILE":
             delete_file(conn, data, cursor, dbconn)
@@ -303,7 +405,13 @@ def handle_client(conn, addr):
             accept_request(conn, data, cursor, dbconn)
         elif cmd == "DECLINE_REQUEST":
             decline_request(conn, data, cursor, dbconn)
-
+            
+        elif cmd == "LOGIN":
+            login(conn, data, cursor)
+        elif cmd == "SIGNUP":
+            signup(conn, data, cursor, dbconn)
+        elif cmd == "LOGOUT":
+            logout(conn, sesison_key)
         else:
             conn.send("3000".encode(FORMAT))
 
