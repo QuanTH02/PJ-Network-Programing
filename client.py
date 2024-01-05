@@ -40,8 +40,14 @@ def login(client):
     if response.startswith("1030"):
         print("Login successful!")
         return {"username": account}
+    elif response.startswith("2011"):
+        print("Missing information!")
+        return None
+    elif response.startswith("2032"):
+        print("Incorrect password!")
+        return None
     else:
-        print("Login failed. Please try again.")
+        print("Account doesn't exist!")
         return None
 
 

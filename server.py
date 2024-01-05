@@ -90,20 +90,13 @@ def login(conn, data, cursor, addr):
                     }
                 send_data = "1030"
         else:
-            send_data = "2032"
+            send_data = "2031"
 
     conn.send(send_data.encode(FORMAT))
     if "username" in locals():
         return ACTIVE_SESSIONS.get(f"{addr[0]}:{addr[1]}:{username}")
     else:
         return None
-
-    conn.send(send_data.encode(FORMAT))
-    if "username" in locals():
-        return ACTIVE_SESSIONS.get(f"{addr[0]}:{addr[1]}:{account}")
-    else:
-        return None
-
 
 def register(conn, data, cursor, dbconn):
     username, password, name = data[1], data[2], data[3]
@@ -134,8 +127,8 @@ def dir_information(conn, data):
     dir = data[1]
     path = os.path.join(SERVER_DATA_PATH, dir)
     files = os.listdir(path)
-    send_data = "1170"
-
+    send_data = "1170\n"
+    
     if len(files) == 0:
         send_data += "The server directory is empty"
     else:
