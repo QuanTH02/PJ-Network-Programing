@@ -2,6 +2,7 @@ import random
 import socket
 import os
 import string
+import sys
 from flask import Flask, jsonify, redirect, render_template, request, url_for
 
 app = Flask(__name__)
@@ -12,15 +13,19 @@ ADDR = (IP, PORT)
 FORMAT = "utf-8"
 SIZE = 1024
 FILE_BLOCK_SIZE = 131072
+CLIENT_DATA_PATH = "client_data"
 
 def display_login_menu():
+    print("****************************************")
     print("1. Login")
     print("2. Signup")
     print("3. Exit")
     choice = input("Choose an option (1/2/3): ")
+    print("****************************************")
     return choice
 
 def display_main_menu():
+    print("****************************************")
     print("1. Show My Teams")
     print("2. Upload File")
     print("3. Make Directory")
@@ -33,7 +38,9 @@ def display_main_menu():
     print("10. Logout")
     print("11. Join Team")
     print("12. Create Team")
-    choice = input("Choose an option (1-12): ")
+    print("13. Download File")
+    choice = input("Choose an option (1-13): ")
+    print("****************************************")
     return choice
 
 def responseFromServer(client):
@@ -112,13 +119,12 @@ def upload_file(client, path, des_path):
     print("To recv")
     response = client.recv(SIZE).decode(FORMAT)
     print("To respond")
-    if response == "2281":
+    if response == "2181":
         return
 
     print("To open")
     with open(path, "rb") as f:
         print("Uploading file...")
-        # text = f.read()
         while True:
             chunk = f.read(FILE_BLOCK_SIZE)
             if not chunk:
@@ -129,50 +135,56 @@ def upload_file(client, path, des_path):
     # print(response)
 
 def download_file(client, path):
-    filename = os.path.basename(path)
-    client.send(f"DOWNLOAD\n{filename}\r\n".encode(FORMAT))
+    client.send(f"DOWNLOAD\n{path}\r\n".encode(FORMAT))
+    file_path = os.path.join(CLIENT_DATA_PATH, os.path.basename(path))
 
-    with open(filename.rsplit('/', 1)[0], "wb") as f:
-        while True:
-            chunk = client.recv(SIZE)
-            if not chunk:
-                break
+    if os.path.exists(file_path):
+        send_data = "2191"
+        client.send(send_data.encode(FORMAT))
+        return
+    
+    client.send("OK".encode(FORMAT))
+
+    file_size = int(client.recv(SIZE).decode(FORMAT))
+    with open(file_path, "wb") as f:
+        while file_size > 0:
+            chunk = client.recv(FILE_BLOCK_SIZE)
             f.write(chunk)
-
+            file_size -= len(chunk)
 
 def make_directory(client, dir_name):
-    client.send(f"MKDIR\n{dir_name}".encode(FORMAT))
+    client.send(f"MKDIR\n{dir_name}\r\n".encode(FORMAT))
     # response = client.recv(SIZE).decode(FORMAT)
     # print(response)
 
 def show_team_member(client, team_name):
     print("Show team member")
-    client.send(f"GET_MEMBER\n{team_name}".encode(FORMAT))
+    client.send(f"GET_MEMBER\n{team_name}\r\n".encode(FORMAT))
     # response = client.recv(SIZE).decode(FORMAT)
     # print(response)
 
 def create_directory(client, dir_path, dir_name, username):
-    client.send(f"CREATE_FOLDER\n{dir_path}\n{dir_name}\n{username}".encode(FORMAT))
+    client.send(f"CREATE_FOLDER\n{dir_path}\n{dir_name}\n{username}\r\n".encode(FORMAT))
     # response = client.recv(SIZE).decode(FORMAT)
     # print(response)
 
 def rename_directory(client, dir_path, dir_name):
-    client.send(f"RENAME_FOLDER\n{dir_path}\n{dir_name}".encode(FORMAT))
+    client.send(f"RENAME_FOLDER\n{dir_path}\n{dir_name}\r\n".encode(FORMAT))
     # response = client.recv(SIZE).decode(FORMAT)
     # print(response)
 
 def delete_directory(client, dir_path):
-    client.send(f"DELETE_FOLDER\n{dir_path}".encode(FORMAT))
+    client.send(f"DELETE_FOLDER\n{dir_path}\r\n".encode(FORMAT))
     # response = client.recv(SIZE).decode(FORMAT)
     # print(response)
 
 def copy_directory(client, dir_path, des_path):
-    client.send(f"COPY_FOLDER\n{dir_path}\n{des_path}".encode(FORMAT))
+    client.send(f"COPY_FOLDER\n{dir_path}\n{des_path}\r\n".encode(FORMAT))
     # response = client.recv(SIZE).decode(FORMAT)
     # print(response)
 
 def move_directory(client, dir_path, des_path):
-    client.send(f"MOVE_FOLDER\n{dir_path}\n{des_path}".encode(FORMAT))
+    client.send(f"MOVE_FOLDER\n{dir_path}\n{des_path}\r\n".encode(FORMAT))
     # response = client.recv(SIZE).decode(FORMAT)
     # print(response)
 
@@ -182,38 +194,16 @@ def move_directory(client, dir_path, des_path):
 ####################################################################
 
 def login(client, username, password):
-# def login(client):
-#     username = input("Enter username: ")
-#     password = input("Enter password: ")
     client.send(f"LOGIN\n{username}\n{password}\r\n".encode(FORMAT))
-
-    # response = client.recv(SIZE).decode(FORMAT)
-    # print(f"{response}")
-
-    requests = client.recv(SIZE).decode(FORMAT)
-    responses = [request for request in requests.split('\r\n') if request]
-
-    for response in responses:
-        print(response)
-
-        if response.startswith("1030"):
-            print("Login successful!")
-            return {"username": username}
-        else:
-            print("Login failed. Please try again.")
-            return None
+    response = client.recv(SIZE).decode(FORMAT)
+    print(f"{response}")
+    data = response.split("\n")
+    return data[0]
     
-def signup(client):
-    username = input("Enter username: ")
-    password = input("Enter password: ")
-    name = input("Enter your name: ")
+def signup(client, username, password, name):
     client.send(f"SIGNUP\n{username}\n{password}\n{name}\r\n".encode(FORMAT))
     # response = client.recv(SIZE).decode(FORMAT)
     # print(f"{response}")
-    # if response.startswith("1010"):
-    #     print("Signup successful!")
-    # else:
-    #     print("Signup failed. Please try again.")
 
 def create_team(client, team_name, username):
     print("Create team")
@@ -228,6 +218,10 @@ def join_team(client, team_code, account):
     # response = client.recv(SIZE).decode(FORMAT)
     # print(response)
 
+def logout(client):
+    client.send("LOGOUT\r\n")
+    # response = client.recv(SIZE).decode(FORMAT)
+    # print(f"{response}")
 ####################################################################
 ####################################################################
 ####################################################################
@@ -321,78 +315,85 @@ def checkCreateTeam():
         return jsonify({"message": "2041"})
     else:
         return jsonify({"message": "Invalid credentials"})
-###################################################################
+####################################################################
+####################################################################
+####################################################################
+    
+
 def main():
     global client
+    if len(sys.argv) != 2:
+        print("Usage: python server.py <port>")
+        return
+    IP = socket.gethostbyname(socket.gethostname())
+    PORT = int(sys.argv[1])
+    ADDR = (IP, PORT)
     client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     client.connect(ADDR)
     data = client.recv(SIZE).decode(FORMAT)
-    print("Client: ", client)
     print(f"{data}")
+    session_key = None
+    account = None
 
-    active_session = None 
-    app.run(debug=True)
+    # app.run(debug=True)
+
     while True:
-        if active_session is None:
-            choice = display_login_menu()
-            if choice == "1":
-                active_session = login(client)
-            elif choice == "2":
-                signup(client)
-            elif choice == "3":
-                # client.send("LOGOUT".encode(FORMAT))
-                break
-            else:
-                print("Invalid choice. Please try again.")
+        if session_key is None:
+            print("You must login first if you have a account, or register if hadn't")
+        data = input("> ")
+        if len(data) == 0:
+            break
+        
+        client.send(session_key.encode(FORMAT))
+        response = client.recv(SIZE).decode(FORMAT)
+        print(response)
+        if response == "2311" and session_key:
+            session_key = None
+            account = None
+            continue
+
+        data = data.split(",")
+        cmd = data[0]
+
+        if cmd == "LOGIN":
+            session_key = login(client, data[1], data[2])
+            account = session_key.rsplit(":")[0]
+        elif cmd == "SIGNUP":
+            signup(client, data[1], data[2], data[3])
+        elif cmd == "LOGOUT":
+            session_key = None
+            account = None
+            logout(client)
+        elif cmd == "SHOW_MY_TEAMS":
+            show_my_teams(client, account)
+        elif cmd == "UPLOAD":
+            upload_file(client, data[1], data[2])
+        elif cmd == "MKDIR":
+            make_directory(client, data[1])
+        elif cmd == "GET_MEMBER":
+            show_team_member(client, data[1])
+        elif cmd == "CREATE_FOLDER":
+            create_directory(client, data[1], data[2], account)
+        elif cmd == "RENAME_FOLDER":
+            rename_directory(client, data[1], data[2], account)
+        elif cmd == "DELETE_FOLDER":
+            delete_directory(client, data[1], account)
+        elif cmd == "COPY_FOLDER":
+            copy_directory(client, data[1], data[2])
+        elif cmd == "MOVE_FOLDER":
+            move_directory(client, data[1], data[2])
+        elif cmd == "DOWNLOAD":
+            download_file(client, data[1])
+        elif cmd == "JOIN_TEAM":
+            join_team(client, data[1], account)
+        elif cmd == "CREATE_TEAM":
+            create_team(client, data[1], account)
+        elif cmd == "DOWNLOAD":
+            download_file(client, data[1])
         else:
-            choice = display_main_menu()
+            print("Unknown command.")
 
-            if choice == "1":
-                show_my_teams(client, active_session["username"])
-            elif choice == "2":
-                path = input("Enter file path: ")
-                des_path = input("Enter file destination path: ")
-                upload_file(client, path, des_path)
-            elif choice == "3":
-                dir_name = input("Enter directory name: ")
-                make_directory(client, dir_name)
-            elif choice == "4":
-                team_name = input("Enter team name: ")
-                show_team_member(client, team_name)
-            elif choice == "5":
-                path = input("Enter file path: ")
-                dir_name = input("Enter directory name: ")
-                create_directory(client, path, dir_name, active_session["username"])
-            elif choice == "6":
-                path = input("Enter file path: ")
-                dir_name = input("Enter directory name: ")
-                rename_directory(client, path, dir_name)
-            elif choice == "7":
-                path = input("Enter file path: ")
-                delete_directory(client, path)
-            elif choice == "8":
-                path = input("Enter file path: ")
-                des_path = input("Enter file destination path: ")
-                copy_directory(client, path, des_path)
-            elif choice == "9":
-                path = input("Enter file path: ")
-                des_path = input("Enter file destination path: ")
-                move_directory(client, path, des_path)
-            elif choice == "10":
-                client.send("LOGOUT".encode(FORMAT))
-                active_session = None
-            elif choice == "11":
-                team_code = input("Enter team code: ")
-                join_team(client, team_code, active_session["username"])
-            elif choice == "12":
-                team_name = input("Enter team name: ")
-                create_team(client, team_name, active_session["username"])
-            else:
-                print("Invalid choice. Please try again.")
-
-            # client.settimeout(2.0)
-
-            responseFromServer(client)
+        responseFromServer(client)
 
             
 

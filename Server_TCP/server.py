@@ -1,3 +1,4 @@
+from datetime import datetime, timedelta
 import os
 import random
 import socket
@@ -14,6 +15,7 @@ SIZE = 1024
 FORMAT = "utf-8"
 SERVER_DATA_PATH = "server_data"
 FILE_BLOCK_SIZE = 131072
+SESSION_TIMEOUT_MINUTES = 120
 
 DB_CONNECTIONS = {}
 DB_CONNECTIONS_LOCK = threading.Lock()
@@ -46,7 +48,7 @@ def upload_file(conn, data):
 
     print("To exists")
     if os.path.exists(filepath):
-        send_data = "2281"
+        send_data = "2181"
         conn.send(send_data.encode(FORMAT))
         return send_data
     
@@ -75,7 +77,15 @@ def upload_file(conn, data):
 
 
 def download_file(conn, data):
-    path = data[1]
+    path = os.path.join(SERVER_DATA_PATH, data[1])
+    response = conn.recv(SIZE).decode(FORMAT)
+
+    file_size = os.path.getsize(path)
+    
+    if response == "2191":
+        return
+    
+    conn.send(str(file_size).encode(FORMAT))
     with open(path, "rb") as f:
         while True:
             chunk = f.read(FILE_BLOCK_SIZE)     
@@ -83,7 +93,7 @@ def download_file(conn, data):
                 break
             conn.send(chunk)
 
-    send_data = "1200\n"
+    send_data = "1200"
     return send_data
 
 def make_directory(conn, data):
@@ -218,7 +228,7 @@ def show_my_teams(conn, data, cursor):
 def show_team_member(conn, data, cursor):
     team_name = data[1]
     send_data = "1100"
-
+    print("To show team member")
     cursor.execute(
         "SELECT account FROM team_member WHERE team_name = ?",
         (team_name, )
@@ -228,7 +238,7 @@ def show_team_member(conn, data, cursor):
 
     for account in result:
         send_data += "\n" + account[0]
-
+    print("To return")
     # conn.send(send_data.encode(FORMAT))
     return send_data
 
@@ -251,21 +261,41 @@ def login(conn, data, cursor, addr):
             with ACTIVE_SESSIONS_LOCK:
                 session_key = f"{addr[0]}:{addr[1]}:{username}"
                 ACTIVE_SESSIONS[session_key] = {
-                    "account_id": username,
-                    "username": username,
+                    "account": username,
+                    "ip_address": addr[0],
+                    "client_socket": conn,
+                    "created_at": str(datetime.now()),
+                    "expires_at": str(
+                        datetime.now() + datetime.timedelta(minutes=SESSION_TIMEOUT_MINUTES)
+                    ),
                 }
-            send_data = "1030"
+            send_data = session_key + "\n1030"
         else:
             send_data = "2032"
 
-    conn.send(f"{send_data}\r\n".encode(FORMAT))
-    if "username" in locals():
-        return ACTIVE_SESSIONS.get(f"{addr[0]}:{addr[1]}:{username}")
-    else:
-        return None
-    
-    # return send_data
+    # conn.send(f"{send_data}\r\n".encode(FORMAT))
 
+    return send_data
+
+def check_session_timeout(session_key):
+    with ACTIVE_SESSIONS_LOCK:
+        if session_key not in ACTIVE_SESSIONS:
+            return False
+        login_time = datetime.strptime(ACTIVE_SESSIONS[session_key]['created_at'], '%Y-%m-%d %H:%M:%S.%f')
+        if datetime.now() - login_time > timedelta(minutes=SESSION_TIMEOUT_MINUTES):
+            del ACTIVE_SESSIONS[session_key]
+            return False
+        else:
+            return True
+
+def logout(conn, session_key):
+    with ACTIVE_SESSIONS_LOCK:
+        if session_key in ACTIVE_SESSIONS:
+            send_data = "1320"
+            del ACTIVE_SESSIONS[session_key]
+        else:
+            send_data = "2321"
+    return send_data
 
 def register(conn, data, cursor, dbconn):
     username, password, name = data[1], data[2], data[3]
@@ -294,12 +324,13 @@ def register(conn, data, cursor, dbconn):
 
 def random_team_code(cursor):
     characters = string.ascii_letters + string.digits
-    code = "".join(random.choice(characters) for _ in range(6))
+    rand_char = random.choice(string.ascii_letters)
+    rand_code = "".join(random.choice(characters) for _ in range(5))
+    code = rand_char + rand_code
     cursor.execute("Select team_code from team")
     result = cursor.fetchall()
     while code in result:
-        characters = string.ascii_letters + string.digits
-        code = "".join(random.choice(characters) for _ in range(6))
+        code = random_team_code(cursor)
     return code
 
 def create_team(conn, data, cursor, dbconn):
@@ -379,15 +410,28 @@ def handle_client(conn, addr):
     active_session = None
 
     while True:
+        sesison_key = conn.recv(SIZE).decode(FORMAT)
+        is_active = check_session_timeout(sesison_key)
+        if is_active == False:
+            conn.send("2311".encode(FORMAT))
+        else:
+            conn.send("1310".encode(FORMAT))
+
         requests = conn.recv(SIZE).decode(FORMAT)
+        
+        unknown = None
+        if "\r\n" not in requests:
+            unknown = "3000\r\n"
+            conn.send(unknown.encode(FORMAT))
+            continue
 
         if len(requests) == 0:
-            return
+            break
 
         if requests == "\r\n":
-            break     
+            continue     
 
-        unknown = None
+        
         if not requests.endswith("\r\n"):
             unknown = "3000\r\n"
             # Sửa
@@ -404,8 +448,7 @@ def handle_client(conn, addr):
             if cmd == "LOGIN":
                 active_session = login(conn, data, cursor, addr)
             elif cmd == "LOGOUT":
-                active_session = None
-                conn.send("1300\r\n".encode(FORMAT))
+                response = logout(conn)
             elif cmd == "SIGNUP":
                 register(conn, data, cursor, dbconn)
             elif active_session is not None:
@@ -435,20 +478,24 @@ def handle_client(conn, addr):
                 elif cmd == "CREATE_TEAM":
                     print("CREATE_TEAM")
                     response = create_team(conn, data, cursor, dbconn)
+                elif cmd == "DOWNLOAD":
+                    response = download_file(conn, data)
                 else:
-                    response = "4040"
+                    response = "3000"
 
                 response += "\r\n"
 
-                if unknown:
-                    response += unknown
+                
 
                 conn.send(response.encode(FORMAT))
                 print("Response: ", response)
 
             elif len(cmd) == 0:
                 break
-
+        
+        if unknown:
+            conn.send("3000\r\n".encode(FORMAT))
+        
     print(f"[DISCONNECTED] {addr} disconnected")
     conn.close()
     close_connection(dbconn)
