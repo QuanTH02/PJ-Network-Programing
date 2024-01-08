@@ -359,10 +359,10 @@ def check_session_timeout(session_key):
 def logout(conn, session_key):
     with ACTIVE_SESSIONS_LOCK:
         if session_key in ACTIVE_SESSIONS:
-            conn.send("1320").encode(FORMAT)
+            conn.send("1320".encode(FORMAT))
             del ACTIVE_SESSIONS[session_key]
         else:
-            conn.send("2321").encode(FORMAT)
+            conn.send("2321".encode(FORMAT))
         
 
 def handle_client(conn, addr):
@@ -376,9 +376,9 @@ def handle_client(conn, addr):
         sesison_key = conn.recv(SIZE).decode(FORMAT)
         is_active = check_session_timeout(sesison_key)
         if is_active == False:
-            conn.send("2311").encode(FORMAT)
+            conn.send("2311".encode(FORMAT))
         else:
-            conn.send("1310").encode(FORMAT)
+            conn.send("1310".encode(FORMAT))
             
         data = conn.recv(SIZE).decode(FORMAT)
         if len(data) == 0:

@@ -100,7 +100,7 @@ def main():
         data = input("> ")
         if len(data) == 0:
             break
-        client.send(session_key).encode(FORMAT)
+        client.send(session_key.encode(FORMAT))
         response = client.recv(SIZE).decode(FORMAT)
         print(response)
         if response == "2311" and session_key:
