@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta
 import os
 import random
+import re
 import shutil
 import socket
 import string
@@ -81,8 +82,7 @@ def upload_file(conn, data, account, cursor):
         send_data = "2042"
         conn.send(send_data.encode(FORMAT))
         return send_data
-
-    if role is None:
+    elif role is None:
         send_data = "2101"
         conn.send(send_data.encode(FORMAT))
         return send_data
@@ -133,8 +133,7 @@ def download_file(conn, data, account, cursor):
         send_data = "2042"
         conn.send(send_data.encode(FORMAT))
         return send_data
-
-    if role is None:
+    elif role is None:
         send_data = "2101"
         conn.send(send_data.encode(FORMAT))
         return send_data
@@ -168,12 +167,10 @@ def create_directory(conn, data, account, cursor):
     role = check_role(account, team_name, cursor)
     if role == 'Team not exist':
         send_data = "2042"
-        conn.send(send_data.encode(FORMAT))
         return send_data
 
-    if role is None:
+    elif role is None:
         send_data = "2101"
-        conn.send(send_data.encode(FORMAT))
         return send_data
 
     full_path = os.path.join(SERVER_DATA_PATH, team_name)
@@ -204,20 +201,13 @@ def rename_directory(conn, data, account, cursor):
     role = check_role(account, team_name, cursor)
     if role == 'Team not exist':
         send_data = "2042"
-        conn.send(send_data.encode(FORMAT))
         return send_data
 
-    if role is None:
+    elif role is None:
         send_data = "2101"
-        conn.send(send_data.encode(FORMAT))
-        return send_data
-    
-    if role == 'Member':
+    elif role == 'Member':
         send_data = "2204"
-        conn.send(send_data.encode(FORMAT))
-        return send_data
-
-    if role == 'Leader':
+    elif role == 'Leader':
         path_team_dir = SERVER_DATA_PATH + "/" + team_name + "/" + dir_path
 
         full_path_old = os.path.join(path_team_dir, dir_name)
@@ -235,7 +225,7 @@ def rename_directory(conn, data, account, cursor):
             send_data = "2251"
 
         # conn.send(send_data.encode(FORMAT))
-        return send_data
+    return send_data
 
 def delete_directory(conn, data, account, cursor):
     team_name = data[1]
@@ -243,22 +233,15 @@ def delete_directory(conn, data, account, cursor):
     dir_name = data[3]
 
     role = check_role(account, team_name, cursor)
+
     if role == 'Team not exist':
         send_data = "2042"
-        conn.send(send_data.encode(FORMAT))
         return send_data
-
-    if role is None:
+    elif role is None:
         send_data = "2101"
-        conn.send(send_data.encode(FORMAT))
-        return send_data
-    
-    if role == 'Member':
+    elif role == 'Member':
         send_data = "2204"
-        conn.send(send_data.encode(FORMAT))
-        return send_data
-    
-    if role == 'Leader':
+    elif role == 'Leader':
         full_path = os.path.join(SERVER_DATA_PATH, team_name, dir_path, dir_name)
         print(full_path)
 
@@ -271,7 +254,7 @@ def delete_directory(conn, data, account, cursor):
         send_data = "1270"
 
         # conn.send(send_data.encode(FORMAT))
-        return send_data
+    return send_data
 
 def copy_directory(conn, data, account, cursor):
     team_name = data[1]
@@ -280,28 +263,23 @@ def copy_directory(conn, data, account, cursor):
     des_path = data[4]
 
     role = check_role(account, team_name, cursor)
+
     if role == 'Team not exist':
         send_data = "2042"
-        conn.send(send_data.encode(FORMAT))
-        return send_data
-
-    if role is None:
+    elif role is None:
         send_data = "2101"
-        conn.send(send_data.encode(FORMAT))
-        return send_data
+    else:
+        full_path_dir = os.path.join(SERVER_DATA_PATH, team_name, src_path, dir_name)
+        full_des_path = os.path.join(SERVER_DATA_PATH, team_name, des_path, dir_name)
 
-    full_path_dir = os.path.join(SERVER_DATA_PATH, team_name, src_path, dir_name)
-    full_des_path = os.path.join(SERVER_DATA_PATH, team_name, des_path, dir_name)
+        print(full_path_dir)
+        print(full_des_path)
+        try:
+            shutil.copytree(full_path_dir, full_des_path)
+            send_data = "1280"
+        except FileExistsError:
+            send_data = "2281"
 
-    print(full_path_dir)
-    print(full_des_path)
-    try:
-        shutil.copytree(full_path_dir, full_des_path)
-        send_data = "1280"
-    except FileExistsError:
-        send_data = "2281"
-
-    # conn.send(send_data.encode(FORMAT))
     return send_data
 
 def move_directory(conn, data, account, cursor):
@@ -313,23 +291,18 @@ def move_directory(conn, data, account, cursor):
     role = check_role(account, team_name, cursor)
     if role == 'Team not exist':
         send_data = "2042"
-        conn.send(send_data.encode(FORMAT))
-        return send_data
-
-    if role is None:
+    elif role is None:
         send_data = "2101"
-        conn.send(send_data.encode(FORMAT))
-        return send_data
+    else:
+        full_path_dir = os.path.join(SERVER_DATA_PATH, team_name, src_path, dir_name)
+        full_des_path = os.path.join(SERVER_DATA_PATH, team_name, des_path, dir_name)
 
-    full_path_dir = os.path.join(SERVER_DATA_PATH, team_name, src_path, dir_name)
-    full_des_path = os.path.join(SERVER_DATA_PATH, team_name, des_path, dir_name)
-
-    try:
-        shutil.copytree(full_path_dir, full_des_path)
-        shutil.rmtree(full_path_dir)
-        send_data = "1290"
-    except FileExistsError:
-        send_data = "2281"
+        try:
+            shutil.copytree(full_path_dir, full_des_path)
+            shutil.rmtree(full_path_dir)
+            send_data = "1290"
+        except FileExistsError:
+            send_data = "2281"
 
     # conn.send(send_data.encode(FORMAT))
     return send_data
@@ -365,7 +338,6 @@ def show_team_member(data, account, cursor):
 
     if role is None:
         send_data = "2101"
-        return send_data
     else:
         send_data = "1100"
         print("To show team member")
@@ -381,12 +353,12 @@ def show_team_member(data, account, cursor):
             send_data += "\n" + account[0]
         print("To return")
         # conn.send(send_data.encode(FORMAT))
-        return send_data
+    return send_data
 
 
-#################################################################### 
-####################################################################
-####################################################################
+##################################################################### 
+#####################################################################
+#####################################################################
 
 def login(conn, data, cursor, addr):
     username, password = data[1], data[2]
@@ -430,6 +402,17 @@ def check_session_timeout(ip_address):
             return False
         else:
             return True
+        
+def is_valid_password(password):
+    if len(password) < 8:
+        return False
+    if not re.search(r"[A-Z]", password):
+        return False
+    if not re.search(r"[a-z]", password):
+        return False
+    if not re.search(r"\d", password):
+        return False
+    return True
 
 def register(data, cursor, dbconn):
     username, password, name = data[1], data[2], data[3]
@@ -437,6 +420,8 @@ def register(data, cursor, dbconn):
         send_data = "2011"
     # elif is_valid_password(password) is False:
     #     send_data = "2012"
+    elif is_valid_password(password) is False:
+        send_data = "2012"
     else:
         with DB_CONNECTIONS_LOCK:
             cursor.execute("SELECT account FROM Account WHERE account = ?", (username,))
@@ -456,6 +441,40 @@ def register(data, cursor, dbconn):
 
     # conn.send("{send_data}\r\n".encode(FORMAT))
     return send_data
+
+def change_password(data, account, cursor, dbconn):
+    password, new_password, cf_password = data[1], data[2], data[3]
+    if account is not None:
+        cursor.execute(
+            "SELECT password FROM Account WHERE account = ?",
+            (account, ),
+        )
+        pw_result = cursor.fetchone()
+
+        if pw_result and pw_result[0] == password:
+            if pw_result[0] == new_password:
+                send_data = "2021"
+            elif new_password != cf_password:
+                send_data = "2022"
+            elif is_valid_password(new_password) is False:
+                send_data = "2023"
+            else:
+                with DB_CONNECTIONS_LOCK:
+                    cursor.execute(
+                        "UPDATE Account SET password = ? WHERE account = ?",
+                        (new_password, account),
+                    )
+                    dbconn.commit()
+                send_data = "1020"
+        else:
+            send_data = "2024"
+
+    # conn.send(send_data.encode(FORMAT))
+    return send_data
+
+##################################################################### 
+#####################################################################
+#####################################################################
 
 def random_team_code(cursor):
     characters = string.ascii_letters + string.digits
@@ -522,6 +541,162 @@ def join_team(conn, data, cursor, dbconn):
                 )
                 dbconn.commit()
     conn.send(send_data.encode(FORMAT))
+
+def quit_team(conn, data, account, cursor, dbconn):
+    team_name = data[1]
+    
+    role = check_role(account, team_name, cursor)
+    
+    if role == 'Team not exist':
+        send_data = "2042"
+
+    elif role is None:
+        send_data = "2101"
+    
+    elif role == 'Leader':
+        send_data = "2111"
+    else:
+        cursor.execute("DELETE FROM Team_member WHERE team_name=? AND account=?", (team_name, account),)
+        send_data = "1110"  # Successfully quit the team
+        dbconn.commit()       
+
+    # conn.send(send_data.encode(FORMAT))
+    return send_data
+
+def remove_member(conn, data, account, cursor, dbconn):
+    team_name, member_name = data[1], data[2]
+
+    role = check_role(account, team_name, cursor)
+    if role == 'Team not exist':
+        send_data = "2042"
+    elif role is None:
+        send_data = "2101"
+    elif role == 'Member':
+        send_data = "2121"
+    elif role == 'Leader':
+        # Remove the member from the team
+        cursor.execute("SELECT account FROM Team_member WHERE team_name = ? AND account = ?", (team_name, member_name))
+        result = cursor.fetchone()
+        if result is None:
+            send_data = "2122"
+        else:
+            if result[0] == account:
+                send_data = "2123"
+            else:
+                cursor.execute("DELETE FROM Team_member WHERE team_name = ? AND account = ?", (team_name, member_name))
+                dbconn.commit()
+                send_data = "1120"  # Successfully removed the member
+
+    # conn.send(send_data.encode(FORMAT))
+    return send_data
+
+def get_all_user(username, cursor):
+    cursor.execute("SELECT account FROM Account WHERE account != ?", (username,))
+    result = cursor.fetchall()
+    user = [row[0] for row in result]
+    send_data = "1130" + "\n".join(user)
+    # conn.send(send_data.encode(FORMAT))
+    return send_data
+
+def invite_member(data, account, cursor, dbconn):
+    team_name, member_name = data[1], data[2]
+
+    role = check_role(account, team_name, cursor)
+    if role == 'Team not exist':
+        send_data = "2042"
+    elif role is None:
+        send_data = "2101"
+    elif role == 'Member':
+        send_data = "2121"
+    elif role == 'Leader':
+        cursor.execute("SELECT account FROM Account WHERE account = ?", (member_name,))
+        user_result = cursor.fetchone()
+        if user_result is None:
+            send_data = "2141"
+        else:
+        # Check if the user is already a member of the team
+            cursor.execute("SELECT * FROM Team_member WHERE team_name = ? AND account = ?", (team_name, member_name))
+            user_existed = cursor.fetchone()
+
+            if user_existed is not None:
+                send_data = "2142"
+            else:
+                cursor.execute("INSERT INTO Invite_request (receiver, team_name) VALUES (?, ?)",
+                                            (member_name, team_name))                
+                dbconn.commit()
+                send_data = "1140"  # Invite request sent successfully
+
+    # conn.send(send_data.encode(FORMAT))
+    return send_data
+
+def get_all_invitations(account, cursor):
+    cursor.execute("SELECT team_name FROM Invite_request WHERE receiver=?", (account,))
+    result = cursor.fetchall()
+
+    print(result)
+    if result:
+        send_data = "1150\n" + "\n".join(row[0] for row in result)
+    else:
+        send_data = "2151"
+
+    # conn.send(send_data.encode(FORMAT))
+    return send_data
+
+def accept_invitation(data, account, cursor, dbconn):
+    team_name = data[1]
+
+    cursor.execute("SELECT team_name FROM Invite_request WHERE receiver=? AND team_name=?", (account, team_name),)
+    result = cursor.fetchone()
+    if result is None:
+        send_data = "2161"
+    else:
+        cursor.execute("INSERT INTO Team_member (account, team_name) VALUES (?, ?)",
+                                            (account, team_name)) 
+        dbconn.commit()
+
+        cursor.execute("DELETE FROM Invite_request WHERE receiver=? AND team_name=?", (account, team_name),)
+        dbconn.commit()
+
+        send_data = "1160"
+    # conn.send(send_data.encode(FORMAT))
+    return send_data
+
+def decline_invitation(data, account, cursor, dbconn):
+    team_name = data[1]
+
+    cursor.execute("SELECT team_name FROM Invite_request WHERE receiver=? AND team_name=?", (account, team_name),)
+    result = cursor.fetchone()
+    if result is None:
+        send_data = "2161"
+    else:
+        cursor.execute("DELETE FROM Invite_request WHERE receiver=? AND team_name=?", (account, team_name),)
+        dbconn.commit()
+
+        send_data = "1170"
+    # conn.send(send_data.encode(FORMAT))
+    return send_data
+
+def dir_information(data, account, cursor):
+    team_name, dir_path = data[1], data[2]
+
+    role = check_role(account, team_name, cursor)
+    if role == 'Team not exist':
+        send_data = "2042"
+    elif role is None:
+        send_data = "2101"
+    else:
+        path = os.path.join(SERVER_DATA_PATH, team_name, dir_path)
+        if not os.path.exists(path):
+            send_data = "2181"
+        else:
+            files = os.listdir(path)
+            
+            if len(files) == 0:
+                send_data = "2182"
+            else:
+                send_data = "1180\n" + "\n".join(f for f in files)
+    # conn.send(send_data.encode(FORMAT))
+    return send_data
 
 ####################################################################
 ####################################################################
@@ -598,6 +773,16 @@ def handle_client(conn, addr):
                                 response = "3001"
                             else:
                                 response = upload_file(conn, data, current_account, cursor)
+                        elif cmd == "DOWNLOAD":
+                            if len(data) != 3:
+                                response = "3001"
+                            else:
+                                response = download_file(conn, data, current_account, cursor)
+                        elif cmd == "CHANGE_PASSWORD":
+                            if len(data) != 4:
+                                response = "3001"
+                            else:
+                                response = change_password(data, current_account, cursor, dbconn)
                         elif cmd == "SHOW_MY_TEAMS":
                             if len(data) != 1:
                                 response = "3001"
@@ -639,16 +824,52 @@ def handle_client(conn, addr):
                             else:
                                 response = join_team(data, current_account, cursor, dbconn)
                         elif cmd == "CREATE_TEAM":
-                            if len(data) != 4:
+                            if len(data) != 2:
                                 response = "3001"
                             else:
-                                print("CREATE_TEAM")
                                 response = create_team(data, current_account, cursor, dbconn)
-                        elif cmd == "DOWNLOAD":
+                        elif cmd == "QUIT_TEAM":
+                            if len(data) != 2:
+                                response = "3001"
+                            else:
+                                response = quit_team(conn, data, current_account, cursor, dbconn)
+                        elif cmd == "REMOVE_MEMBER":
                             if len(data) != 3:
                                 response = "3001"
                             else:
-                                response = download_file(conn, data, current_account, cursor)
+                                response = remove_member(conn, data, current_account, cursor, dbconn)
+                        elif cmd == "GET_ALL_USER":
+                            if len(data) != 1:
+                                response = "3001"
+                            else:
+                                response = get_all_user(current_account, cursor)
+                        elif cmd == "INVITE_MEMBER":
+                            if len(data) != 3:
+                                response = "3001"
+                            else:
+                                response = invite_member(data, current_account, cursor, dbconn)
+                        elif cmd == "GET_ALL_INVITATIONS":
+                            if len(data) != 1:
+                                response = "3001"
+                            else:
+                                response = get_all_invitations(current_account, cursor)
+                        elif cmd == "ACCEPT_INVITATION":
+                            if len(data) != 2:
+                                response = "3001"
+                            else:
+                                response = accept_invitation(data, current_account, cursor, dbconn)
+                        elif cmd == "DECLINE_INVITATION":
+                            if len(data) != 2:
+                                response = "3001"
+                            else:
+                                response = decline_invitation(data, current_account, cursor, dbconn)
+                        elif cmd == "FOLDER_INFORMATION":
+                            if len(data) != 3:
+                                response = "3001"
+                            else:
+                                response = dir_information(data, current_account, cursor)
+
+
                         elif cmd == "LOGOUT":
                             if len(data) != 1:
                                 response = "3001"

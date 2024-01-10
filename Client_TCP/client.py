@@ -103,6 +103,69 @@ def responseFromServer(client):
         elif response.startswith("1290"):
             print("Move folder successfully")
              
+        # QUIT_TEAM
+        elif response.startswith("1110"):
+            print("Quit team successfully")
+        elif response.startswith("2111"):
+            print("Bạn là Leader không được rời nhóm")
+        
+        # REMOVE_MEMBER
+        elif response.startswith("1120"):
+            print("Remove member successfully")
+        elif response.startswith("2121"):
+            print("Bạn là Member không được xóa thành viên ra khỏi nhóm")
+        elif response.startswith("2122"):
+            print("Tài khoản không tồn tại")
+        elif response.startswith("2123"):
+            print("Không thể xóa chính mình")
+
+        # GET_ALL_USER
+        elif response.startswith("1130"):
+            print("Get all user successfully")
+            lines = response.split("\n")
+            result = "\n".join(lines[1:])
+            print(result)
+
+        # INVITE_MEMBER
+        elif response.startswith("1140"):
+            print("Invite member successfully")
+        elif response.startswith("2141"):
+            print("Tài khoản không tồn tại")
+        elif response.startswith("2142"):
+            print("Tài khoản đã tồn tại trong nhóm")
+
+        # GET_ALL_INVITATIONS
+        elif response.startswith("1150"):
+            print("Get all invitations successfully")
+            lines = response.split("\n")
+            result = "\n".join(lines[1:])
+            print(result)
+        elif response.startswith("2151"):
+            print("Không có lời mời nào")
+        
+        # ACCEPT_INVITATION
+        elif response.startswith("1160"):
+            print("Accept invitation successfully")
+        elif response.startswith("2161"):
+            print("Bạn không có lời mời này")
+
+        # DECLINE_INVITATION
+        elif response.startswith("1170"):
+            print("Decline invitation successfully")
+
+        # FOLDER_INFORMATION
+        elif response.startswith("1180"):
+            print("Folder information successfully")
+            lines = response.split("\n")
+            result = "\n".join(lines[1:])
+            print(result)
+        elif response.startswith("2181"):
+            print("Folder không tồn tại")
+        elif response.startswith("2182"):
+            print("Folder rỗng")
+
+
+
         elif response.startswith("1190"):
             print("Upload file successfully")
         elif response.startswith("2181"):
@@ -231,6 +294,11 @@ def signup(client, username, password, name):
     # response = client.recv(SIZE).decode(FORMAT)
     # print(f"{response}")
 
+def change_password(client, password, new_password, cf_password):
+    client.send(f"CHANGE_PASSWORD\n{password}\n{new_password}\n{cf_password}\r\n".encode(FORMAT))
+    # response = client.recv(SIZE).decode(FORMAT)
+    # print(response)
+
 def create_team(client, team_name):
     client.send(f"CREATE_TEAM\n{team_name}\r\n".encode(FORMAT))
     # response = client.recv(SIZE).decode(FORMAT)
@@ -247,10 +315,50 @@ def logout(client):
     client.send(f"LOGOUT\r\n".encode(FORMAT))
     # response = client.recv(SIZE).decode(FORMAT)
     # print(f"{response}")
-####################################################################
-####################################################################
-####################################################################
 
+def quit_team(client, team_name):
+    client.send(f"QUIT_TEAM\n{team_name}\r\n".encode(FORMAT))
+    # response = client.recv(SIZE).decode(FORMAT)
+    # print(response)
+
+def remove_member(client, team_name, member_name):
+    client.send(f"REMOVE_MEMBER\n{team_name}\n{member_name}\r\n".encode(FORMAT))
+    # response = client.recv(SIZE).decode(FORMAT)
+    # print(response)
+
+def get_all_user(client):
+    client.send(f"GET_ALL_USER\r\n".encode(FORMAT))
+    # response = client.recv(SIZE).decode(FORMAT)
+    # print(response)
+
+def invite_member(client, team_name, member_name):
+    client.send(f"INVITE_MEMBER\n{team_name}\n{member_name}\r\n".encode(FORMAT))
+    # response = client.recv(SIZE).decode(FORMAT)
+    # print(response)
+
+def get_all_invitations(client):
+    client.send(f"GET_ALL_INVITATIONS\r\n".encode(FORMAT))
+    # response = client.recv(SIZE).decode(FORMAT)
+    # return response
+
+def accept_invitation(client, team_name):
+    client.send(f"ACCEPT_INVITATION\n{team_name}\r\n".encode(FORMAT))
+    # response = client.recv(SIZE).decode(FORMAT)
+    # print(response)
+
+
+def decline_invitation(client, team_name):
+    client.send(f"DECLINE_INVITATION\n{team_name}\r\n".encode(FORMAT))
+    # response = client.recv(SIZE).decode(FORMAT)
+    # print(response)
+
+def dir_information(client, team_name, path):
+    client.send(f"FOLDER_INFORMATION\n{team_name}\n{path}\r\n".encode(FORMAT))
+    # response = client.recv(SIZE).decode(FORMAT)
+    # print(response)
+####################################################################
+####################################################################
+####################################################################
 
 def main():
     global client
@@ -284,6 +392,12 @@ def main():
                 continue
             else:
                 signup(client, data[1], data[2], data[3])
+        elif cmd == "CHANGE_PASSWORD":
+            if len(data) != 4:
+                print("Usage: CHANGE_PASSWORD|<password>|<new_password>|<cf_password>")
+                continue
+            else:
+                change_password(client, data[1], data[2], data[3])
         elif cmd == "LOGOUT":
             if len(data) != 1:
                 print("Usage: LOGOUT")
@@ -344,6 +458,7 @@ def main():
                 continue
             else:
                 move_directory(client, data[1], data[2], data[3], data[4])
+                
         ###########################
         elif cmd == "JOIN_TEAM":
             join_team(client, data[1])
@@ -355,17 +470,63 @@ def main():
                 continue
             else:
                 create_team(client, data[1])
+        elif cmd == "QUIT_TEAM":
+            if len(data) != 2:
+                print("Usage: QUIT_TEAM|<team_name>")
+                continue
+            else:
+                quit_team(client, data[1])
+        elif cmd == "REMOVE_MEMBER":
+            if len(data) != 3:
+                print("Usage: REMOVE_MEMBER|<team_name>|<member_name>")
+                continue
+            else:
+                remove_member(client, data[1], data[2])
+        elif cmd == "GET_ALL_USER":
+            if len(data) != 1:
+                print("Usage: GET_ALL_USER")
+                continue
+            else:
+                get_all_user(client)
+        elif cmd == "INVITE_MEMBER":
+            if len(data) != 3:
+                print("Usage: INVITE_MEMBER|<team_name>|<member_name>")
+                continue
+            else:
+                invite_member(client, data[1], data[2])
+        elif cmd == "GET_ALL_INVITATIONS":
+            if len(data) != 1:
+                print("Usage: GET_ALL_INVITATIONS")
+                continue
+            else:
+                get_all_invitations(client)
+        elif cmd == "ACCEPT_INVITATION":
+            if len(data) != 2:
+                print("Usage: ACCEPT_INVITATION|<team_name>")
+                continue
+            else:
+                accept_invitation(client, data[1])
+        elif cmd == "DECLINE_INVITATION":
+            if len(data) != 2:
+                print("Usage: DECLINE_INVITATION|<team_name>")
+                continue
+            else:
+                decline_invitation(client, data[1])
+        elif cmd == "FOLDER_INFORMATION":
+            if len(data) != 3:
+                print("Usage: FOLDER_INFORMATION|<team_name>|<path>")
+                continue
+            else:
+                dir_information(client, data[1], data[2])
+        
         else:
             send_data = '\n'.join(data) + '\r\n'
             client.send(send_data.encode(FORMAT))
             
         responseFromServer(client)
 
-            
-
     print("Disconnected from the server.")
     client.close()
-
 
 if __name__ == "__main__":
     main()
