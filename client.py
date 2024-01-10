@@ -2,7 +2,7 @@ import socket
 import os
 import sys
 
-from const import FORMAT, SIZE
+from config import FORMAT, SIZE
 
 
 def delete_file(client, file_path):

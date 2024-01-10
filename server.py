@@ -10,7 +10,7 @@ from tqdm import tqdm
 import sys
 from datetime import datetime, timedelta
 
-from const import (
+from config import (
     IP,
     SIZE,
     FORMAT,
@@ -43,14 +43,6 @@ def random_team_code(cursor):
     while code in result:
         code = random_team_code(cursor)
     return code
-
-
-def create_session_id():
-    hash_object = hashlib.sha256(os.urandom(64))
-    session_id = hash_object.hexdigest()
-    while session_id in ACTIVE_SESSIONS:
-        session_id = create_session_id()
-    return session_id
 
 
 def get_database_connection():
@@ -301,17 +293,16 @@ def login(conn, data, cursor, addr):
 
         if result:
             with ACTIVE_SESSIONS_LOCK:
-                session_key = f"{addr[0]}:{addr[1]}:{username}"
-                ACTIVE_SESSIONS[session_key] = {
+                ACTIVE_SESSIONS[addr] = {
                     "account": username,
-                    "ip_address": addr[0],
+                    "ip_address": addr,
                     "client_socket": conn,
                     "created_at": str(datetime.now()),
                     "expires_at": str(
                         datetime.now() + timedelta(minutes=SESSION_TIMEOUT_MINUTES)
                     ),
                 }
-            send_data = session_key + "\n1030"
+            send_data ="1030\n" + username
         else:
             send_data = "2032"
 
@@ -345,25 +336,16 @@ def signup(conn, data, cursor, dbconn):
     conn.send(f"{send_data}\r\n".encode(FORMAT))
     # return send_data
 
-def check_session_timeout(session_key):
+def check_session_timeout(addr):
     with ACTIVE_SESSIONS_LOCK:
-        if session_key not in ACTIVE_SESSIONS:
+        if addr not in ACTIVE_SESSIONS:
             return False
-        login_time = datetime.strptime(ACTIVE_SESSIONS[session_key]['created_at'], '%Y-%m-%d %H:%M:%S.%f')
+        login_time = datetime.strptime(ACTIVE_SESSIONS[addr]['created_at'], '%Y-%m-%d %H:%M:%S.%f')
         if datetime.now() - login_time > timedelta(minutes=SESSION_TIMEOUT_MINUTES):
-            del ACTIVE_SESSIONS[session_key]
+            del ACTIVE_SESSIONS[addr]
             return False
         else:
             return True
-            
-def logout(conn, session_key):
-    with ACTIVE_SESSIONS_LOCK:
-        if session_key in ACTIVE_SESSIONS:
-            conn.send("1320".encode(FORMAT))
-            del ACTIVE_SESSIONS[session_key]
-        else:
-            conn.send("2321".encode(FORMAT))
-        
 
 def handle_client(conn, addr):
     with get_database_connection() as dbconn:
@@ -373,13 +355,6 @@ def handle_client(conn, addr):
     conn.send("OK\nWelcome to the File Server.".encode(FORMAT))
 
     while True:
-        sesison_key = conn.recv(SIZE).decode(FORMAT)
-        is_active = check_session_timeout(sesison_key)
-        if is_active == False:
-            conn.send("2311".encode(FORMAT))
-        else:
-            conn.send("1310".encode(FORMAT))
-            
         data = conn.recv(SIZE).decode(FORMAT)
         if len(data) == 0:
             break
@@ -411,7 +386,9 @@ def handle_client(conn, addr):
         elif cmd == "SIGNUP":
             signup(conn, data, cursor, dbconn)
         elif cmd == "LOGOUT":
-            logout(conn, sesison_key)
+            with ACTIVE_SESSIONS_LOCK:
+                del ACTIVE_SESSIONS[addr]
+            conn.send("1320".encode(FORMAT))
         else:
             conn.send("3000".encode(FORMAT))
 

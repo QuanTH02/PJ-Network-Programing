@@ -1,0 +1,30 @@
+IP = "0.0.0.0"
+SIZE = 1024
+FORMAT = "utf-8"
+SERVER_DATA_PATH = "server_data"
+FILE_BLOCK_SIZE = 131072
+SESSION_TIMEOUT_MINUTES = 120
+LIST_CMD = [
+    "LOGIN",
+    "SIGNUP",
+    "LOGOUT",
+    "SHOW_MY_TEAMS",
+    "UPLOAD",
+    "GET_MEMBER",
+    "CREATE_FOLDER",
+    "RENAME_FOLDER",
+    "DELETE_FOLDER",
+    "COPY_FOLDER",
+    "MOVE_FOLDER",
+    "DOWNLOAD",
+    "JOIN_TEAM",
+    "CREATE_TEAM",
+    "GET_REQUEST",
+    "ACCEPT_REQUEST",
+    "DECLINE_REQUEST",
+    "DELETE_FILE",
+    "RENAME_FILE",
+    "COPY_FILE",
+    "MOVE_FILE",
+    "QUIT",
+]
