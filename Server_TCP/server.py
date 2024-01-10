@@ -545,7 +545,7 @@ def get_all_user(username, cursor):
     cursor.execute("SELECT account FROM Account WHERE account != ?", (username,))
     result = cursor.fetchall()
     user = [row[0] for row in result]
-    send_data = "1130" + "\n".join(user)
+    send_data = "1130\n" + "\n".join(user)
     # conn.send(send_data.encode(FORMAT))
     return send_data
 
@@ -591,7 +591,6 @@ def get_all_invitations(account, cursor):
     cursor.execute("SELECT team_name FROM Invite_request WHERE receiver=?", (account,))
     result = cursor.fetchall()
 
-    print(result)
     if result:
         send_data = "1150\n" + "\n".join(row[0] for row in result)
     else:
@@ -696,10 +695,10 @@ def random_team_code(cursor):
     rand_code = "".join(random.choice(characters) for _ in range(5))
     code = rand_char + rand_code
 
-    cursor.execute("Select team_code from team")
+    cursor.execute("Select team_code from team WHERE team_code = ?", (code, ))
 
-    result = cursor.fetchall()
-    while code in result:
+    result = cursor.fetchone()
+    if result:
         code = random_team_code(cursor)
     return code
 
@@ -741,10 +740,10 @@ def join_team(data, account, cursor, dbconn):
         else:
             team_name = result[0]
             cursor.execute(
-                "SELECT account from team_member where team_name = ?", (team_name,)
+                "SELECT account from team_member where team_name = ? AND account = ?", (team_name, account)
             )
-            team_account = cursor.fetchall()
-            if account in team_account:
+            result = cursor.fetchone()
+            if result:
                 send_data = "2062"
             else:
                 send_data = "1060"

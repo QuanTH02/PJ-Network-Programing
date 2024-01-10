@@ -11,229 +11,228 @@ def responseFromServer(client):
     # print("Go to responseFromServer")
     requests = client.recv(SIZE).decode(FORMAT)
 
-    # Sửa
     responses = [request for request in requests.split('\r\n') if request]
 
     for response in responses:
         # SIGNUP
         if response.startswith("1010"):
-            print("Đăng ký thành công")
+            print("Signed up successfully!")
         elif response.startswith("2012"):
-            print("Trường thông tin nhập chưa đúng định dạng")
+            print("Incorrect format!")
         elif response.startswith("2013"):
-            print("Tài khoản đã tồn tại")
+            print("Account has existed!")
         
         # CHANGE_PASSWORD
         elif response.startswith("1020"):
-            print("Đổi mật khẩu thành công")
+            print("Changed password successfully!")
         elif response.startswith("2021"):
-            print("2 mật khẩu trùng nhau")
+            print("The new password can't be the same as the old password!")
         elif response.startswith("2022"):
-            print("Mật khẩu mới nhập lại không trùng khớp")
+            print("The passwords do not match!")
         elif response.startswith("2023"):
-            print("Mật khẩu mới không đúng định dạng")
+            print("The new password is not in the correct format!")
         elif response.startswith("2024"):
-            print("Nhập mật khẩu cũ sai") 
+            print("Incorrect old password!") 
 
         # LOGIN
         elif response.startswith("1030"):
-            print("Đăng nhập thành công")
+            print("Logged in successfully!")
         elif response.startswith("2011"):
-            print("Chưa nhập đủ các trường thông tin")
+            print("Missing information!")
         elif response.startswith("2031"):
-            print("Tài khoản không tồn tại")
+            print("Account doesn't exist!")
         elif response.startswith("2032"):
-            print("Mật khẩu không đúng")
+            print("Incorrect password!")
         
         #CREATE_TEAM
         elif response.startswith("1040"):
-            print("Tạo nhóm thành công")
+            print("Created team successfully!")
         elif response.startswith("2041"):
-            print("Tên nhóm đã tồn tại")
+            print("Team name has existed!")
         elif response.startswith("2042"):
-            print("Tên nhóm không tồn tại")
+            print("Tên nhóm không tồn tại!")
         
         # SHOW_MY_TEAMS
         elif response.startswith("1050"):
-            print("Show my teams successfully")
+            print("Showed my teams successfully!")
             lines = response.split("\n")
             result = "\n".join(lines[1:])
             print(result)
         elif response.startswith("1051"):
-            print("Chưa tham gia nhóm nào")
+            print("You haven't attended any team!")
 
         #JOIN_TEAM
         elif response.startswith("1060"):
-            print("Tham gia nhóm thành công")
+            print("Joined team successfully!")
         elif response.startswith("2061"):
-            print("Nhập sai Team code")
+            print("Wrong team code!")
         elif response.startswith("2062"):
-            print("Đã tham gia nhóm rồi")
+            print("You have already joined this team!")
 
         #GET_JOIN_REQUEST
         elif response.startswith("1070"):
-            print("Danh sách yêu cầu:")
+            print("Pending join requests:")
             lines = response.split("\n")
             result = "\n".join(lines[1:])
             print(result)
 
         #ACCEPT_JOIN_REQUEST
         elif response.startswith("1080"):
-            print("Chấp nhận yêu cầu thành công")
+            print("Accepted join request successfully!")
         elif response.startswith("2081"):
-            print("Không tồn tại request")
+            print("No pending requests!")
 
         #DECLINE_JOIN_REQUEST
         elif response.startswith("1090"):
-            print("Từ chối yêu cầu thành công")
+            print("Declined join request successfully!")
 
         # GET_MEMBER
         elif response.startswith("1100"):
-            print("Show team member successfully")
+            print("Showed team member successfully!")
             lines = response.split("\n")
             result = "\n".join(lines[1:])
             print(result)
         elif response.startswith("2101"):
-            print("Account không nằm trong team")
+            print("You are not a member of this team!")
 
         # QUIT_TEAM
         elif response.startswith("1110"):
             print("Quit team successfully")
         elif response.startswith("2111"):
-            print("Bạn là Leader không được rời nhóm")
+            print("Leader can't quit team!")
 
         # REMOVE_MEMBER
         elif response.startswith("1120"):
-            print("Remove member successfully")
+            print("Removed member successfully!")
         elif response.startswith("2122"):
-            print("Tài khoản không tồn tại")
+            print("Account doesn't exist!")
         elif response.startswith("2123"):
-            print("Không thể xóa chính mình")
+            print("You can't remove yourself!")
 
         # GET_ALL_USER
         elif response.startswith("1130"):
-            print("Get all user successfully")
+            print("Got all user successfully!")
             lines = response.split("\n")
             result = "\n".join(lines[1:])
             print(result)
 
         # INVITE_MEMBER
         elif response.startswith("1140"):
-            print("Invite member successfully")
+            print("Invited member successfully")
         elif response.startswith("2141"):
-            print("Tài khoản không tồn tại")
+            print("Account doesn't exist!")
         elif response.startswith("2142"):
-            print("Tài khoản đã tồn tại trong nhóm")
+            print("Account has already been invited!")
 
         # GET_ALL_INVITATIONS
         elif response.startswith("1150"):
-            print("Get all invitations successfully")
+            print("Got all invitations successfully!")
             lines = response.split("\n")
             result = "\n".join(lines[1:])
             print(result)
         elif response.startswith("2151"):
-            print("Không có lời mời nào")
+            print("No pending invitations!")
 
         # ACCEPT_INVITATION
         elif response.startswith("1160"):
-            print("Accept invitation successfully")
+            print("Accepted invitation successfully!")
         elif response.startswith("2161"):
-            print("Bạn không có lời mời này")
+            print("You don't allowed to accept this invitation!")
 
         # DECLINE_INVITATION
         elif response.startswith("1170"):
-            print("Decline invitation successfully")
+            print("Declined invitation successfully!")
 
         # FOLDER_INFORMATION
         elif response.startswith("1180"):
-            print("Folder information successfully")
+            print("Got folder information successfully!")
             lines = response.split("\n")
             result = "\n".join(lines[1:])
             print(result)
         elif response.startswith("2181"):
-            print("Folder không tồn tại")
+            print("Folder doesn't exist!")
         elif response.startswith("2182"):
-            print("Folder rỗng")
+            print("Folder is empty!")
 
         # UPLOAD
         elif response.startswith("1190"):
-            print("Upload file successfully")
+            print("Uploaded file successfully!")
 
         # DOWNLOAD
         elif response.startswith("1200"):
-            print("Download file successfully")
+            print("Downloaded file successfully!")
         elif response.startswith("2201"):
-            print("File không tồn tại")
+            print("File doesn't exist!")
 
         #RENAME_FILE
         elif response.startswith("1210"):
-            print("Đổi tên file thành công")
+            print("Renamed file successfully!")
         elif response.startswith("2211"):
-            print("Tên file trùng với file khác")
+            print("Filename has existed!")
         elif response.startswith("2212"):
-            print("Tên file không hợp lệ")
+            print("Invalid filename!")
         elif response.startswith("2213"):
-            print("Tên file có phần mở rộng không trùng khớp với phần mở rộng của file gốc")
+            print("Filename has an extension that does not match the original file extension!")
         elif response.startswith("2215"):
-            print("Không tìm thấy file trong thư mục gốc")
+            print("File not found in root folder!")
 
         #DELETE_FILE
         elif response.startswith("1220"):
-            print("Delete file successfully")
+            print("Deleted file successfully!")
         
         #COPY_FILE
         elif response.startswith("1230"):
-            print("Copy file thành công")
+            print("Copied file successfully!")
         elif response.startswith("2231"):
-            print("File đã tồn tại ở thư mục đích")
+            print("File has existed in destination folder!")
         elif response.startswith("2232"):
-            print("Không tồn tại thư mục đích")
+            print("Destination folder doesn't exist!")
         #MOVE_FILE
         elif response.startswith("1240"):
-            print("Move file thành công")  
+            print("Moved file successfully!")  
 
         # CREATE_FOLDER
         elif response.startswith("1250"):
-            print("Create folder successfully")
+            print("Created folder successfully!")
         elif response.startswith("2251"):
-            print("Thư mục đã tồn tại")
+            print("Folder has existed!")
         elif response.startswith("2252"):
-            print("Tên thư mục không hợp lệ")
+            print("Invalid folder name!")
 
         # RENAME_FOLDER
         elif response.startswith("1260"):
-            print("Rename folder successfully")
+            print("Renamed folder successfully")
         elif response.startswith("2261"):
-            print("Folder không tồn tại")
+            print("Folder doesn't exist!")
         elif response.startswith("2214"):
-            print("Bạn không có quyền")
+            print("You don't allowed to rename this folder!")
 
         # DELETE_FOLDER
         elif response.startswith("1270"):
-            print("Delete folder successfully")
+            print("Deleted folder successfully!")
 
         # COPY_FOLDER
         elif response.startswith("1280"):
-            print("Copy folder successfully") 
+            print("Copied folder successfully!") 
         elif response.startswith("2281"):
-            print("Đã tồn tại folder ở thư mục đích")
+            print("Folder has existed in destination folder!")
 
         # MOVE_FOLDER
         elif response.startswith("1290"):
-            print("Move folder successfully")
+            print("Moved folder successfully!")
     
         # END
         elif response.startswith("3000"):
-            print("Thông điệp không xác định")
+            print("Unknown message!")
         elif response.startswith("3001"):
-            print("Thông điệp không đúng định dạng giao thức")
+            print("The message isn't in the correct format!")
 
         elif response.startswith("2321"):
-            print("Bạn đã đăng nhập rồi")
+            print("You have already logged in!")
         elif response.startswith("2322"):
-            print("Bạn chưa đăng nhập")
+            print("You haven't logged in yet!")
         elif response.startswith("1320"):
-            print("Đăng xuất thành công")
+            print("Log out successfully!")
 
         # elif response.startswith(""):
         #     print("")
