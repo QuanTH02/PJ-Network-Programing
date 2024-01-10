@@ -1,16 +1,11 @@
-import random
 import socket
 import os
-import string
 import sys
 
-IP = socket.gethostbyname(socket.gethostname())
-PORT = 5000
-ADDR = (IP, PORT)
-FORMAT = "utf-8"
-SIZE = 1024
-FILE_BLOCK_SIZE = 131072
-CLIENT_DATA_PATH = "client_data"
+import sys
+sys.path.append('../')
+
+from config import SIZE, FORMAT, FILE_BLOCK_SIZE
 
 def responseFromServer(client):
     # print("Go to responseFromServer")
@@ -20,26 +15,15 @@ def responseFromServer(client):
     responses = [request for request in requests.split('\r\n') if request]
 
     for response in responses:
-        # Đăng ký và quản lý tài khoản
+        # SIGNUP
         if response.startswith("1010"):
             print("Đăng ký thành công")
-
-        # LOGIN
-        elif response.startswith("1030"):
-            print("Đăng nhập thành công")
-        elif response.startswith("2011"):
-            print("Chưa nhập đủ các trường thông tin")
-        elif response.startswith("2031"):
-            print("Tài khoản không tồn tại")
-        elif response.startswith("2032"):
-            print("Mật khẩu không đúng")
-        
-        # if response.startswith("2011"):
-        #     print("Chưa nhập đủ các trường thông tin")
         elif response.startswith("2012"):
             print("Trường thông tin nhập chưa đúng định dạng")
         elif response.startswith("2013"):
             print("Tài khoản đã tồn tại")
+        
+        # CHANGE_PASSWORD
         elif response.startswith("1020"):
             print("Đổi mật khẩu thành công")
         elif response.startswith("2021"):
@@ -51,6 +35,24 @@ def responseFromServer(client):
         elif response.startswith("2024"):
             print("Nhập mật khẩu cũ sai") 
 
+        # LOGIN
+        elif response.startswith("1030"):
+            print("Đăng nhập thành công")
+        elif response.startswith("2011"):
+            print("Chưa nhập đủ các trường thông tin")
+        elif response.startswith("2031"):
+            print("Tài khoản không tồn tại")
+        elif response.startswith("2032"):
+            print("Mật khẩu không đúng")
+        
+        #CREATE_TEAM
+        elif response.startswith("1040"):
+            print("Tạo nhóm thành công")
+        elif response.startswith("2041"):
+            print("Tên nhóm đã tồn tại")
+        elif response.startswith("2042"):
+            print("Tên nhóm không tồn tại")
+        
         # SHOW_MY_TEAMS
         elif response.startswith("1050"):
             print("Show my teams successfully")
@@ -59,6 +61,31 @@ def responseFromServer(client):
             print(result)
         elif response.startswith("1051"):
             print("Chưa tham gia nhóm nào")
+
+        #JOIN_TEAM
+        elif response.startswith("1060"):
+            print("Tham gia nhóm thành công")
+        elif response.startswith("2061"):
+            print("Nhập sai Team code")
+        elif response.startswith("2062"):
+            print("Đã tham gia nhóm rồi")
+
+        #GET_JOIN_REQUEST
+        elif response.startswith("1070"):
+            print("Danh sách yêu cầu:")
+            lines = response.split("\n")
+            result = "\n".join(lines[1:])
+            print(result)
+
+        #ACCEPT_JOIN_REQUEST
+        elif response.startswith("1080"):
+            print("Chấp nhận yêu cầu thành công")
+        elif response.startswith("2081"):
+            print("Không tồn tại request")
+
+        #DECLINE_JOIN_REQUEST
+        elif response.startswith("1090"):
+            print("Từ chối yêu cầu thành công")
 
         # GET_MEMBER
         elif response.startswith("1100"):
@@ -69,51 +96,15 @@ def responseFromServer(client):
         elif response.startswith("2101"):
             print("Account không nằm trong team")
 
-        # DOWNLOAD
-        elif response.startswith("2182"):
-            print("File không tồn tại")
-
-        # CREATE_FOLDER
-        elif response.startswith("1250"):
-            print("Create folder successfully")
-        elif response.startswith("2251"):
-            print("Thư mục đã tồn tại")
-        elif response.startswith("2252"):
-            print("Tên thư mục không hợp lệ")
-
-        # RENAME_FOLDER
-        elif response.startswith("1260"):
-            print("Rename folder successfully")
-        elif response.startswith("2261"):
-            print("Folder không tồn tại")
-        elif response.startswith("2204"):
-            print("Bạn không có quyền")
-
-        # DELETE_FOLDER
-        elif response.startswith("1270"):
-            print("Delete folder successfully")
-
-        # COPY_FOLDER
-        elif response.startswith("1280"):
-            print("Copy folder successfully") 
-        elif response.startswith("2281"):
-            print("Đã tồn tại folder ở thư mục đích")
-
-        # MOVE_FOLDER
-        elif response.startswith("1290"):
-            print("Move folder successfully")
-             
         # QUIT_TEAM
         elif response.startswith("1110"):
             print("Quit team successfully")
         elif response.startswith("2111"):
             print("Bạn là Leader không được rời nhóm")
-        
+
         # REMOVE_MEMBER
         elif response.startswith("1120"):
             print("Remove member successfully")
-        elif response.startswith("2121"):
-            print("Bạn là Member không được xóa thành viên ra khỏi nhóm")
         elif response.startswith("2122"):
             print("Tài khoản không tồn tại")
         elif response.startswith("2123"):
@@ -142,7 +133,7 @@ def responseFromServer(client):
             print(result)
         elif response.startswith("2151"):
             print("Không có lời mời nào")
-        
+
         # ACCEPT_INVITATION
         elif response.startswith("1160"):
             print("Accept invitation successfully")
@@ -164,37 +155,86 @@ def responseFromServer(client):
         elif response.startswith("2182"):
             print("Folder rỗng")
 
-
-
+        # UPLOAD
         elif response.startswith("1190"):
             print("Upload file successfully")
-        elif response.startswith("2181"):
-            print("File đã tồn tại ở thư mục đích")
+
+        # DOWNLOAD
         elif response.startswith("1200"):
             print("Download file successfully")
-        elif response.startswith("1060"):
-            print("Join team successfully")
-        elif response.startswith("2061"):
-            print("Nhập sai Team code")
-        elif response.startswith("2062"):
-            print("Đã tham gia nhóm rồi")
-        elif response.startswith("1040"):
-            print("Create team successfully")
-        elif response.startswith("2041"):
-            print("Tên nhóm đã tồn tại")
-        elif response.startswith("2042"):
-            print("Tên nhóm không tồn tại")
+        elif response.startswith("2201"):
+            print("File không tồn tại")
 
+        #RENAME_FILE
+        elif response.startswith("1210"):
+            print("Đổi tên file thành công")
+        elif response.startswith("2211"):
+            print("Tên file trùng với file khác")
+        elif response.startswith("2212"):
+            print("Tên file không hợp lệ")
+        elif response.startswith("2213"):
+            print("Tên file có phần mở rộng không trùng khớp với phần mở rộng của file gốc")
+        elif response.startswith("2215"):
+            print("Không tìm thấy file trong thư mục gốc")
+
+        #DELETE_FILE
+        elif response.startswith("1220"):
+            print("Delete file successfully")
+        
+        #COPY_FILE
+        elif response.startswith("1230"):
+            print("Copy file thành công")
+        elif response.startswith("2231"):
+            print("File đã tồn tại ở thư mục đích")
+        elif response.startswith("2232"):
+            print("Không tồn tại thư mục đích")
+        #MOVE_FILE
+        elif response.startswith("1240"):
+            print("Move file thành công")  
+
+        # CREATE_FOLDER
+        elif response.startswith("1250"):
+            print("Create folder successfully")
+        elif response.startswith("2251"):
+            print("Thư mục đã tồn tại")
+        elif response.startswith("2252"):
+            print("Tên thư mục không hợp lệ")
+
+        # RENAME_FOLDER
+        elif response.startswith("1260"):
+            print("Rename folder successfully")
+        elif response.startswith("2261"):
+            print("Folder không tồn tại")
+        elif response.startswith("2214"):
+            print("Bạn không có quyền")
+
+        # DELETE_FOLDER
+        elif response.startswith("1270"):
+            print("Delete folder successfully")
+
+        # COPY_FOLDER
+        elif response.startswith("1280"):
+            print("Copy folder successfully") 
+        elif response.startswith("2281"):
+            print("Đã tồn tại folder ở thư mục đích")
+
+        # MOVE_FOLDER
+        elif response.startswith("1290"):
+            print("Move folder successfully")
+    
+        # END
         elif response.startswith("3000"):
             print("Thông điệp không xác định")
         elif response.startswith("3001"):
             print("Thông điệp không đúng định dạng giao thức")
+
         elif response.startswith("2321"):
             print("Bạn đã đăng nhập rồi")
         elif response.startswith("2322"):
             print("Bạn chưa đăng nhập")
         elif response.startswith("1320"):
             print("Đăng xuất thành công")
+
         # elif response.startswith(""):
         #     print("")
             
@@ -208,7 +248,6 @@ def show_my_teams(client):
     # return response
     # responseFromServer(client)
 
-
 def upload_file(client, path, team_name, des_path):
     filename = os.path.basename(path)
     file_size = os.path.getsize(path)
@@ -216,7 +255,7 @@ def upload_file(client, path, team_name, des_path):
     print("To recv")
     response = client.recv(SIZE).decode(FORMAT)
     print("To respond")
-    if response == "2181" or response == "3001" or response == "2101" or response == "2042":
+    if response == "3001" or response == "2101" or response == "2042":
         return
 
     print("To open")
@@ -236,7 +275,7 @@ def download_file(client, team_name, src_path, des_path):
     file_path = os.path.join(des_path, os.path.basename(src_path))
 
     response = client.recv(SIZE).decode(FORMAT)
-    if response == '2042' or response == '2101' or response == '2182':
+    if response == '2042' or response == '2101' or response == '2201':
         return
 
     if os.path.exists(file_path):
@@ -299,18 +338,6 @@ def change_password(client, password, new_password, cf_password):
     # response = client.recv(SIZE).decode(FORMAT)
     # print(response)
 
-def create_team(client, team_name):
-    client.send(f"CREATE_TEAM\n{team_name}\r\n".encode(FORMAT))
-    # response = client.recv(SIZE).decode(FORMAT)
-    # print(response)
-
-def join_team(client, team_code):
-    print("To join team")
-    client.send(f"JOIN_TEAM\n{team_code}\r\n".encode(FORMAT))
-    print("Send successful")
-    # response = client.recv(SIZE).decode(FORMAT)
-    # print(response)
-
 def logout(client):
     client.send(f"LOGOUT\r\n".encode(FORMAT))
     # response = client.recv(SIZE).decode(FORMAT)
@@ -359,7 +386,59 @@ def dir_information(client, team_name, path):
 ####################################################################
 ####################################################################
 ####################################################################
+# NAM
+####################################################################
+####################################################################
+####################################################################
+    
+def create_team(client, team_name):
+    client.send(f"CREATE_TEAM\n{team_name}\r\n".encode(FORMAT))
+    # response = client.recv(SIZE).decode(FORMAT)
+    # print(response)
 
+def join_team(client, team_code):
+    client.send(f"JOIN_TEAM\n{team_code}\r\n".encode(FORMAT))
+    # response = client.recv(SIZE).decode(FORMAT)
+    # print(response)
+    
+def get_join_request(client, team_name):
+    client.send(f"GET_JOIN_REQUEST\n{team_name}\r\n".encode(FORMAT))
+    # response = client.recv(SIZE).decode(FORMAT)
+    # print(f"{response}")
+
+def accept_join_request(client, team_name, sender):
+    client.send(f"ACCEPT_JOIN_REQUEST\n{team_name}\n{sender}\r\n".encode(FORMAT))
+    # response = client.recv(SIZE).decode(FORMAT)
+    # print(f"{response}")
+
+def decline_join_request(client, team_name, sender):
+    client.send(f"DECLINE_JOIN_REQUEST\n{team_name}\n{sender}\r\n".encode(FORMAT))
+    # response = client.recv(SIZE).decode(FORMAT)
+    # print(f"{response}")
+    
+def delete_file(client, team_name, dir_path, filename):
+    client.send(f"DELETE_FILE\n{team_name}\n{dir_path}\n{filename}\r\n".encode(FORMAT))
+    # response = client.recv(SIZE).decode(FORMAT)
+    # print(f"{response}")
+
+def rename_file(client, team_name, dir_path, old_file_name, new_file_name):
+    client.send(f"RENAME_FILE\n{team_name}\n{dir_path}\n{old_file_name}\n{new_file_name}\r\n".encode(FORMAT))
+    # response = client.recv(SIZE).decode(FORMAT)
+    # print(f"{response}")
+
+def copy_file(client, team_name, src_dir, filename, dest_dir):
+    client.send(f"COPY_FILE\n{team_name}\n{src_dir}\n{filename}\n{dest_dir}\r\n".encode(FORMAT))
+    # response = client.recv(SIZE).decode(FORMAT)
+    # print(f"{response}")
+    
+def move_file(client, team_name, src_dir, filename, dest_dir):
+    client.send(f"MOVE_FILE\n{team_name}\n{src_dir}\n{filename}\n{dest_dir}\r\n".encode(FORMAT))
+    # response = client.recv(SIZE).decode(FORMAT)
+    # print(f"{response}")
+
+####################################################################
+####################################################################
+####################################################################
 def main():
     global client
     if len(sys.argv) != 2:
@@ -458,18 +537,6 @@ def main():
                 continue
             else:
                 move_directory(client, data[1], data[2], data[3], data[4])
-                
-        ###########################
-        elif cmd == "JOIN_TEAM":
-            join_team(client, data[1])
-        ###########################
-            
-        elif cmd == "CREATE_TEAM":
-            if len(data) != 2:
-                print("Usage: CREATE_TEAM|<team_name>")
-                continue
-            else:
-                create_team(client, data[1])
         elif cmd == "QUIT_TEAM":
             if len(data) != 2:
                 print("Usage: QUIT_TEAM|<team_name>")
@@ -518,11 +585,71 @@ def main():
                 continue
             else:
                 dir_information(client, data[1], data[2])
-        
+        elif cmd == "JOIN_TEAM":
+            if len(data) != 2:
+                print("Usage: JOIN_TEAM|<team_code>")
+                continue
+            else:
+                join_team(client, data[1])
+        elif cmd == "CREATE_TEAM":
+            if len(data) != 2:
+                print("Usage: CREATE_TEAM|<team_name>")
+                continue
+            else:
+                create_team(client, data[1])
+        elif cmd == "GET_JOIN_REQUEST":
+            if len(data) != 2:
+                print("Usage: GET_JOIN_REQUEST|<team_name>")
+                continue
+            else:
+                get_join_request(client, data[1])
+        elif cmd == "ACCEPT_JOIN_REQUEST":
+            if len(data) != 3:
+                print("Usage: ACCEPT_JOIN_REQUEST|<team_name>|<sender>")
+                continue
+            else:
+                accept_join_request(client, data[1], data[2])
+        elif cmd == "DECLINE_JOIN_REQUEST":
+            if len(data) != 3:
+                print("Usage: DECLINE_JOIN_REQUEST|<team_name>|<sender>")
+                continue
+            else:
+                decline_join_request(client, data[1], data[2])
+        elif cmd == "DELETE_FILE":
+            if len(data) != 4:
+                print("Usage: DELETE_FILE|<team_name>|<dir_path>|<filename>")
+                continue
+            else:
+                delete_file(client, data[1], data[2], data[3])
+        elif cmd == "RENAME_FILE":
+            if len(data) != 5:
+                print("Usage: RENAME_FILE|<team_name>|<dir_path>|<old_file_name>|<new_file_name>")
+                continue
+            else:
+                rename_file(client, data[1], data[2], data[3], data[4])
+        elif cmd == "COPY_FILE":
+            if len(data) != 5:
+                print("Usage: COPY_FILE|<team_name>|<src_dir>|<filename>|<dest_dir>")
+                continue
+            else:
+                copy_file(client, data[1], data[2], data[3], data[4])
+        elif cmd == "MOVE_FILE":
+            if len(data) != 5:
+                print("Usage: MOVE_FILE|<team_name>|<src_dir>|<filename>|<dest_dir>")
+                continue
+            else:
+                move_file(client, data[1], data[2], data[3], data[4])
+        elif cmd == "QUIT":
+            if len(data) != 1:
+                print("Usage: QUIT")
+                continue
+            else:
+                client.send(f"QUIT\r\n".encode(FORMAT))
+                break
         else:
             send_data = '\n'.join(data) + '\r\n'
             client.send(send_data.encode(FORMAT))
-            
+
         responseFromServer(client)
 
     print("Disconnected from the server.")
