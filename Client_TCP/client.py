@@ -2,16 +2,51 @@ import socket
 import os
 import sys
 
-import sys
-sys.path.append('../')
+sys.path.append("../")
 
 from config import SIZE, FORMAT, FILE_BLOCK_SIZE
+from quan_client import (
+    show_my_teams,
+    upload_file,
+    download_file,
+    show_team_member,
+    create_directory,
+    rename_directory,
+    delete_directory,
+    copy_directory,
+    move_directory,
+)
+from nam_client import (
+    create_team,
+    join_team,
+    get_join_request,
+    accept_join_request,
+    decline_join_request,
+    delete_file,
+    rename_file,
+    copy_file,
+    move_file,
+)
+from nguyet_client import (
+    login,
+    signup,
+    change_password,
+    logout,
+    quit_team,
+    remove_member,
+    get_all_user,
+    invite_member,
+    get_all_invitations,
+    accept_invitation,
+    decline_invitation,
+    dir_information,
+)
 
 def responseFromServer(client):
     # print("Go to responseFromServer")
     requests = client.recv(SIZE).decode(FORMAT)
 
-    responses = [request for request in requests.split('\r\n') if request]
+    responses = [request for request in requests.split("\r\n") if request]
 
     for response in responses:
         # SIGNUP
@@ -21,7 +56,7 @@ def responseFromServer(client):
             print("Incorrect format!")
         elif response.startswith("2013"):
             print("Account has existed!")
-        
+
         # CHANGE_PASSWORD
         elif response.startswith("1020"):
             print("Changed password successfully!")
@@ -32,7 +67,7 @@ def responseFromServer(client):
         elif response.startswith("2023"):
             print("The new password is not in the correct format!")
         elif response.startswith("2024"):
-            print("Incorrect old password!") 
+            print("Incorrect old password!")
 
         # LOGIN
         elif response.startswith("1030"):
@@ -43,15 +78,15 @@ def responseFromServer(client):
             print("Account doesn't exist!")
         elif response.startswith("2032"):
             print("Incorrect password!")
-        
-        #CREATE_TEAM
+
+        # CREATE_TEAM
         elif response.startswith("1040"):
             print("Created team successfully!")
         elif response.startswith("2041"):
             print("Team name has existed!")
         elif response.startswith("2042"):
             print("Tên nhóm không tồn tại!")
-        
+
         # SHOW_MY_TEAMS
         elif response.startswith("1050"):
             print("Showed my teams successfully!")
@@ -61,7 +96,7 @@ def responseFromServer(client):
         elif response.startswith("1051"):
             print("You haven't attended any team!")
 
-        #JOIN_TEAM
+        # JOIN_TEAM
         elif response.startswith("1060"):
             print("Joined team successfully!")
         elif response.startswith("2061"):
@@ -69,20 +104,20 @@ def responseFromServer(client):
         elif response.startswith("2062"):
             print("You have already joined this team!")
 
-        #GET_JOIN_REQUEST
+        # GET_JOIN_REQUEST
         elif response.startswith("1070"):
             print("Pending join requests:")
             lines = response.split("\n")
             result = "\n".join(lines[1:])
             print(result)
 
-        #ACCEPT_JOIN_REQUEST
+        # ACCEPT_JOIN_REQUEST
         elif response.startswith("1080"):
             print("Accepted join request successfully!")
         elif response.startswith("2081"):
             print("No pending requests!")
 
-        #DECLINE_JOIN_REQUEST
+        # DECLINE_JOIN_REQUEST
         elif response.startswith("1090"):
             print("Declined join request successfully!")
 
@@ -137,7 +172,7 @@ def responseFromServer(client):
         elif response.startswith("1160"):
             print("Accepted invitation successfully!")
         elif response.startswith("2161"):
-            print("You don't allowed to accept this invitation!")
+            print("You do not have an invitation from this group!")
 
         # DECLINE_INVITATION
         elif response.startswith("1170"):
@@ -164,7 +199,7 @@ def responseFromServer(client):
         elif response.startswith("2201"):
             print("File doesn't exist!")
 
-        #RENAME_FILE
+        # RENAME_FILE
         elif response.startswith("1210"):
             print("Renamed file successfully!")
         elif response.startswith("2211"):
@@ -172,24 +207,26 @@ def responseFromServer(client):
         elif response.startswith("2212"):
             print("Invalid filename!")
         elif response.startswith("2213"):
-            print("Filename has an extension that does not match the original file extension!")
+            print(
+                "Filename has an extension that does not match the original file extension!"
+            )
         elif response.startswith("2215"):
             print("File not found in root folder!")
 
-        #DELETE_FILE
+        # DELETE_FILE
         elif response.startswith("1220"):
             print("Deleted file successfully!")
-        
-        #COPY_FILE
+
+        # COPY_FILE
         elif response.startswith("1230"):
             print("Copied file successfully!")
         elif response.startswith("2231"):
             print("File has existed in destination folder!")
         elif response.startswith("2232"):
             print("Destination folder doesn't exist!")
-        #MOVE_FILE
+        # MOVE_FILE
         elif response.startswith("1240"):
-            print("Moved file successfully!")  
+            print("Moved file successfully!")
 
         # CREATE_FOLDER
         elif response.startswith("1250"):
@@ -213,14 +250,14 @@ def responseFromServer(client):
 
         # COPY_FOLDER
         elif response.startswith("1280"):
-            print("Copied folder successfully!") 
+            print("Copied folder successfully!")
         elif response.startswith("2281"):
             print("Folder has existed in destination folder!")
 
         # MOVE_FOLDER
         elif response.startswith("1290"):
             print("Moved folder successfully!")
-    
+
         # END
         elif response.startswith("3000"):
             print("Unknown message!")
@@ -234,210 +271,6 @@ def responseFromServer(client):
         elif response.startswith("1320"):
             print("Log out successfully!")
 
-        # elif response.startswith(""):
-        #     print("")
-            
-        # print(response)
-        # return response
-
-
-def show_my_teams(client):
-    client.send(f"SHOW_MY_TEAMS\r\n".encode(FORMAT))
-    # response = client.recv(SIZE).decode(FORMAT)
-    # return response
-    # responseFromServer(client)
-
-def upload_file(client, path, team_name, des_path):
-    filename = os.path.basename(path)
-    file_size = os.path.getsize(path)
-    client.send(f"UPLOAD\n{filename}\n{team_name}\n{des_path}\n{file_size}\r\n".encode(FORMAT))
-    print("To recv")
-    response = client.recv(SIZE).decode(FORMAT)
-    print("To respond")
-    if response == "3001" or response == "2101" or response == "2042":
-        return
-
-    print("To open")
-    with open(path, "rb") as f:
-        print("Uploading file...")
-        while True:
-            chunk = f.read(FILE_BLOCK_SIZE)
-            if not chunk:
-                break
-            client.send(chunk)
-
-    # response = client.recv(SIZE).decode(FORMAT)
-    # print(response)
-
-def download_file(client, team_name, src_path, des_path):
-    client.send(f"DOWNLOAD\n{team_name}\n{src_path}\r\n".encode(FORMAT))
-    file_path = os.path.join(des_path, os.path.basename(src_path))
-
-    response = client.recv(SIZE).decode(FORMAT)
-    if response == '2042' or response == '2101' or response == '2201':
-        return
-
-    if os.path.exists(file_path):
-        file_name = os.path.basename(src_path)
-        new_file_name = file_name.split('.')[0] + '(1).' + file_name.split('.')[1]
-        file_path = os.path.join(des_path, new_file_name)
-
-    file_size = int(client.recv(SIZE).decode(FORMAT))
-    with open(file_path, "wb") as f:
-        while file_size > 0:
-            chunk = client.recv(FILE_BLOCK_SIZE)
-            f.write(chunk)
-            file_size -= len(chunk)
-
-def show_team_member(client, team_name):
-    print("Show team member")
-    client.send(f"GET_MEMBER\n{team_name}\r\n".encode(FORMAT))
-    # response = client.recv(SIZE).decode(FORMAT)
-    # print(response)
-
-def create_directory(client, team_name, dir_path, dir_name):
-    client.send(f"CREATE_FOLDER\n{team_name}\n{dir_path}\n{dir_name}\r\n".encode(FORMAT))
-    # response = client.recv(SIZE).decode(FORMAT)
-    # print(response)
-
-def rename_directory(client, team_name, dir_path, dir_name, dir_new_name):
-    client.send(f"RENAME_FOLDER\n{team_name}\n{dir_path}\n{dir_name}\n{dir_new_name}\r\n".encode(FORMAT))
-    # response = client.recv(SIZE).decode(FORMAT)
-    # print(response)
-
-def delete_directory(client, team_name, dir_path, dir_name):
-    client.send(f"DELETE_FOLDER\n{team_name}\n{dir_path}\n{dir_name}\r\n".encode(FORMAT))
-    # response = client.recv(SIZE).decode(FORMAT)
-    # print(response)
-
-def copy_directory(client, team_name, src_path, dir_name, des_path):
-    client.send(f"COPY_FOLDER\n{team_name}\n{src_path}\n{dir_name}\n{des_path}\r\n".encode(FORMAT))
-    # response = client.recv(SIZE).decode(FORMAT)
-    # print(response)
-
-def move_directory(client, team_name, src_path, dir_name, des_path):
-    client.send(f"MOVE_FOLDER\n{team_name}\n{src_path}\n{dir_name}\n{des_path}\r\n".encode(FORMAT))
-    # response = client.recv(SIZE).decode(FORMAT)
-    # print(response)
-
-
-####################################################################
-####################################################################
-####################################################################
-def login(client, username, password):
-    client.send(f"LOGIN\n{username}\n{password}\r\n".encode(FORMAT))
-    
-def signup(client, username, password, name):
-    client.send(f"SIGNUP\n{username}\n{password}\n{name}\r\n".encode(FORMAT))
-    # response = client.recv(SIZE).decode(FORMAT)
-    # print(f"{response}")
-
-def change_password(client, password, new_password, cf_password):
-    client.send(f"CHANGE_PASSWORD\n{password}\n{new_password}\n{cf_password}\r\n".encode(FORMAT))
-    # response = client.recv(SIZE).decode(FORMAT)
-    # print(response)
-
-def logout(client):
-    client.send(f"LOGOUT\r\n".encode(FORMAT))
-    # response = client.recv(SIZE).decode(FORMAT)
-    # print(f"{response}")
-
-def quit_team(client, team_name):
-    client.send(f"QUIT_TEAM\n{team_name}\r\n".encode(FORMAT))
-    # response = client.recv(SIZE).decode(FORMAT)
-    # print(response)
-
-def remove_member(client, team_name, member_name):
-    client.send(f"REMOVE_MEMBER\n{team_name}\n{member_name}\r\n".encode(FORMAT))
-    # response = client.recv(SIZE).decode(FORMAT)
-    # print(response)
-
-def get_all_user(client):
-    client.send(f"GET_ALL_USER\r\n".encode(FORMAT))
-    # response = client.recv(SIZE).decode(FORMAT)
-    # print(response)
-
-def invite_member(client, team_name, member_name):
-    client.send(f"INVITE_MEMBER\n{team_name}\n{member_name}\r\n".encode(FORMAT))
-    # response = client.recv(SIZE).decode(FORMAT)
-    # print(response)
-
-def get_all_invitations(client):
-    client.send(f"GET_ALL_INVITATIONS\r\n".encode(FORMAT))
-    # response = client.recv(SIZE).decode(FORMAT)
-    # return response
-
-def accept_invitation(client, team_name):
-    client.send(f"ACCEPT_INVITATION\n{team_name}\r\n".encode(FORMAT))
-    # response = client.recv(SIZE).decode(FORMAT)
-    # print(response)
-
-
-def decline_invitation(client, team_name):
-    client.send(f"DECLINE_INVITATION\n{team_name}\r\n".encode(FORMAT))
-    # response = client.recv(SIZE).decode(FORMAT)
-    # print(response)
-
-def dir_information(client, team_name, path):
-    client.send(f"FOLDER_INFORMATION\n{team_name}\n{path}\r\n".encode(FORMAT))
-    # response = client.recv(SIZE).decode(FORMAT)
-    # print(response)
-####################################################################
-####################################################################
-####################################################################
-# NAM
-####################################################################
-####################################################################
-####################################################################
-    
-def create_team(client, team_name):
-    client.send(f"CREATE_TEAM\n{team_name}\r\n".encode(FORMAT))
-    # response = client.recv(SIZE).decode(FORMAT)
-    # print(response)
-
-def join_team(client, team_code):
-    client.send(f"JOIN_TEAM\n{team_code}\r\n".encode(FORMAT))
-    # response = client.recv(SIZE).decode(FORMAT)
-    # print(response)
-    
-def get_join_request(client, team_name):
-    client.send(f"GET_JOIN_REQUEST\n{team_name}\r\n".encode(FORMAT))
-    # response = client.recv(SIZE).decode(FORMAT)
-    # print(f"{response}")
-
-def accept_join_request(client, team_name, sender):
-    client.send(f"ACCEPT_JOIN_REQUEST\n{team_name}\n{sender}\r\n".encode(FORMAT))
-    # response = client.recv(SIZE).decode(FORMAT)
-    # print(f"{response}")
-
-def decline_join_request(client, team_name, sender):
-    client.send(f"DECLINE_JOIN_REQUEST\n{team_name}\n{sender}\r\n".encode(FORMAT))
-    # response = client.recv(SIZE).decode(FORMAT)
-    # print(f"{response}")
-    
-def delete_file(client, team_name, dir_path, filename):
-    client.send(f"DELETE_FILE\n{team_name}\n{dir_path}\n{filename}\r\n".encode(FORMAT))
-    # response = client.recv(SIZE).decode(FORMAT)
-    # print(f"{response}")
-
-def rename_file(client, team_name, dir_path, old_file_name, new_file_name):
-    client.send(f"RENAME_FILE\n{team_name}\n{dir_path}\n{old_file_name}\n{new_file_name}\r\n".encode(FORMAT))
-    # response = client.recv(SIZE).decode(FORMAT)
-    # print(f"{response}")
-
-def copy_file(client, team_name, src_dir, filename, dest_dir):
-    client.send(f"COPY_FILE\n{team_name}\n{src_dir}\n{filename}\n{dest_dir}\r\n".encode(FORMAT))
-    # response = client.recv(SIZE).decode(FORMAT)
-    # print(f"{response}")
-    
-def move_file(client, team_name, src_dir, filename, dest_dir):
-    client.send(f"MOVE_FILE\n{team_name}\n{src_dir}\n{filename}\n{dest_dir}\r\n".encode(FORMAT))
-    # response = client.recv(SIZE).decode(FORMAT)
-    # print(f"{response}")
-
-####################################################################
-####################################################################
-####################################################################
 def main():
     global client
     if len(sys.argv) != 2:
@@ -514,7 +347,9 @@ def main():
                 create_directory(client, data[1], data[2], data[3])
         elif cmd == "RENAME_FOLDER":
             if len(data) != 5:
-                print("Usage: RENAME_FOLDER|<team_name>|<des_path>|<name_folder>|<new_name_folder>")
+                print(
+                    "Usage: RENAME_FOLDER|<team_name>|<des_path>|<name_folder>|<new_name_folder>"
+                )
                 continue
             else:
                 rename_directory(client, data[1], data[2], data[3], data[4])
@@ -622,7 +457,9 @@ def main():
                 delete_file(client, data[1], data[2], data[3])
         elif cmd == "RENAME_FILE":
             if len(data) != 5:
-                print("Usage: RENAME_FILE|<team_name>|<dir_path>|<old_file_name>|<new_file_name>")
+                print(
+                    "Usage: RENAME_FILE|<team_name>|<dir_path>|<old_file_name>|<new_file_name>"
+                )
                 continue
             else:
                 rename_file(client, data[1], data[2], data[3], data[4])
@@ -646,7 +483,7 @@ def main():
                 client.send(f"QUIT\r\n".encode(FORMAT))
                 break
         else:
-            send_data = '\n'.join(data) + '\r\n'
+            send_data = "\n".join(data) + "\r\n"
             client.send(send_data.encode(FORMAT))
 
         responseFromServer(client)
@@ -654,6 +491,6 @@ def main():
     print("Disconnected from the server.")
     client.close()
 
+
 if __name__ == "__main__":
     main()
-
